@@ -2,6 +2,8 @@
 
 namespace tiFy\Plugins\Parser;
 
+use Psr\Container\ContainerInterface;
+
 /**
  * Class Parser
  *
@@ -36,5 +38,21 @@ namespace tiFy\Plugins\Parser;
  */
 class Parser
 {
+    /**
+     * Instance du conteneur d'injection de dépendances.
+     * @var ContainerInterface
+     */
+    protected $container;
 
+    /**
+     * CONSTRUCTEUR.
+     *
+     * @param ContainerInterface $container
+     *
+     * @return void
+     */
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
 }
