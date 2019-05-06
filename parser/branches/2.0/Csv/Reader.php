@@ -8,6 +8,7 @@ use League\Csv\Reader as LeagueReader;
 use League\Csv\ResultSet;
 use League\Csv\Statement;
 use tiFy\Support\Collection;
+use tiFy\Plugins\Parser\Exceptions\CsvException;
 use tiFy\Plugins\Parser\Contracts\CsvReader;
 
 /**
@@ -20,6 +21,7 @@ use tiFy\Plugins\Parser\Contracts\CsvReader;
  *      'enclosure'     => '"',
  *      'escape'        => '\\',
  *      'header'        => ['lastname', 'firstname', 'email'],
+ *      'primary'       => 'lastname',
  *      'page'          => 1,
  *      'per_page'      => -1
  * ]);
@@ -135,6 +137,12 @@ class Reader extends Collection implements CsvReader
     protected $items;
 
     /**
+     * Colonne de clé primaire utilisée pour indexer les éléments.
+     * @var string|int|null
+     */
+    protected $primary = null;
+
+    /**
      * La ligne de démarrage du traitement.
      * @var int
      */
@@ -210,6 +218,7 @@ class Reader extends Collection implements CsvReader
      * @return $this
      *
      * @throws Exception
+     * @throws CsvException
      */
     protected function fetchItems(): CsvReader
     {
@@ -230,7 +239,23 @@ class Reader extends Collection implements CsvReader
             $total_pages = ($per_page > -1) ? ceil($this->getTotal() / $per_page) : 1;
             $this->_setPages(intval($total_pages));
 
-            $this->items = iterator_to_array($this->_result);
+            $items = iterator_to_array($this->_result);
+            if (!is_null($this->primary)) {
+                $_items = [];
+                foreach ($items as $n => $item) {
+                    $key = $item[$this->primary];
+                    if (!isset($_items[$key])) {
+                        $_items[$key] = $item;
+                    } else {
+                        throw new CsvException(sprintf(
+                            __('Les valeurs de colonne primaire doivent être unique. "%s" en doublon à la ligne %d',
+                                'tify'), $key, $n
+                        ));
+                    }
+                }
+                $items = $_items;
+            }
+            $this->items = $items;
         }
         return $this;
     }
@@ -361,9 +386,14 @@ class Reader extends Collection implements CsvReader
                 }
             }
 
-            if ($this->hasHeader() && !$this->getHeader()) {
-                $this->_reader->setHeaderOffset(0);
-                $this->header = $this->_reader->getHeader();
+            if ($this->hasHeader()) {
+                if (!$this->getHeader()) {
+                    $this->_reader->setHeaderOffset(0);
+                    $this->header = $this->_reader->getHeader();
+                }
+            }
+            if (isset($params['primary'])) {
+                $this->setPrimary($params['primary']);
             }
 
             $this->_reader->setDelimiter($this->delimiter)->setEnclosure($this->enclosure)->setEscape($this->escape);
@@ -389,6 +419,21 @@ class Reader extends Collection implements CsvReader
     {
         $this->encoding = [$encoding[0] ?? 'utf-8', $encoding[1] ?? 'utf-8'];
 
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setPrimary($primary): CsvReader
+    {
+        if (is_numeric($primary)) {
+            $this->primary = intval($primary);
+        } elseif (is_string($primary) && is_array($this->getHeader()) && in_array($primary, $this->getHeader())) {
+            if (in_array($primary, $this->getHeader())) {
+                $this->primary = $primary;
+            }
+        }
         return $this;
     }
 

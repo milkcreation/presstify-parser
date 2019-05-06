@@ -53,10 +53,10 @@ use tiFy\Plugins\Parser\Exceptions\CsvException;
  * - mode : 'a+' > mode d'écriture inclusif. @see https://www.php.net/manual/fr/function.fopen.php
  *
  * // Ajout d'une ligne de données.
- * $csv->addLine(['freDdy', 'merCurY']);
+ * $csv->addRow(['freDdy', 'merCurY']);
  *
  * // Ajout de plusieurs lignes de données.
- * $csv->addLines([
+ * $csv->addRows([
  *      ['roGer', 'taYlor'],
  *      ['brIAn', 'mAy'],
  *      ['joHN', 'deACon']
@@ -160,7 +160,7 @@ class Writer implements CsvWriter
     /**
      * @inheritDoc
      */
-    public function addLine(array $line): CsvWriter
+    public function addRow(array $line): CsvWriter
     {
         try {
             $this->getWriter()->insertOne($line);
@@ -175,7 +175,7 @@ class Writer implements CsvWriter
     /**
      * @inheritDoc
      */
-    public function addLines($lines): CsvWriter
+    public function addRows($lines): CsvWriter
     {
         try {
             foreach ($lines as $line) {
