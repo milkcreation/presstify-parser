@@ -88,6 +88,15 @@ interface CsvReader extends Collection
     public function setEncoding(array $encoding): CsvReader;
 
     /**
+     * Définition de la colonne de clé primaire.
+     *
+     * @param string|int $primary Indice ou Nom de qualification de la colonne de clé primaire
+     *
+     * @return static
+     */
+    public function setPrimary($primary): CsvReader;
+
+    /**
      * Définition de la page courante de récupération des éléments.
      *
      * @param int $page

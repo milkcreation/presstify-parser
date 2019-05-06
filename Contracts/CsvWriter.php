@@ -36,7 +36,7 @@ interface CsvWriter
      *
      * @throws CsvException
      */
-    public function addLine(array $line): CsvWriter;
+    public function addRow(array $line): CsvWriter;
 
     /**
      * Ajout de plusieurs lignes.
@@ -47,7 +47,7 @@ interface CsvWriter
      *
      * @throws CsvException
      */
-    public function addLines($lines): CsvWriter;
+    public function addRows($lines): CsvWriter;
 
     /**
      * Téléchargement du fichier.
