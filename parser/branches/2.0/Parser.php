@@ -10,7 +10,7 @@ use Psr\Container\ContainerInterface;
  * @desc Extension PresstiFy de traitement, conversion et écriture de données au format CSV,Excel,JSON,XML.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\Parser
- * @version 2.0.1
+ * @version 2.0.2
  *
  * USAGE :
  * Activation

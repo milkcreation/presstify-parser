@@ -319,14 +319,12 @@ class Writer implements CsvWriter
 
         $flush_threshold = $this->getWriter()->getFlushThreshold() ?: 1000;
         $response->setCallback(function () use ($flush_threshold) {
-            $output = '';
             foreach ($this->getWriter()->chunk(1024) as $offset => $chunk) {
-                $output .= $chunk;
+                echo $chunk;
                 if ($offset % $flush_threshold === 0) {
                     flush();
                 }
             }
-            return $output;
         });
 
         return $response;
