@@ -2,14 +2,9 @@
 
 namespace tiFy\Plugins\Parser\Csv;
 
-use League\Csv\CharsetConverter;
-use League\Csv\Exception;
-use League\Csv\Reader as LeagueReader;
-use League\Csv\ResultSet;
-use League\Csv\Statement;
+use League\Csv\{CharsetConverter, Exception, Reader as LeagueReader, ResultSet, Statement};
 use tiFy\Support\Collection;
-use tiFy\Plugins\Parser\Exceptions\CsvException;
-use tiFy\Plugins\Parser\Contracts\CsvReader;
+use tiFy\Plugins\Parser\{Exceptions\CsvException, Contracts\CsvReader};
 
 /**
  *  USAGE :
@@ -66,16 +61,16 @@ class Reader extends Collection implements CsvReader
     private $_pages = 0;
 
     /**
+     * Instance du controleur de traitement.
+     * @var LeagueReader
+     */
+    private $_parser;
+
+    /**
      * Indicateur d'intégrité du controleur.
      * @var boolean
      */
     private $_prepared = false;
-
-    /**
-     * Instance du controleur de traitement.
-     * @var LeagueReader
-     */
-    private $_reader;
 
     /**
      * Instance du jeu de résultat complet.
@@ -232,7 +227,7 @@ class Reader extends Collection implements CsvReader
             $this->_result = $this->getStat()
                 ->offset(intval($offset))
                 ->limit($per_page)
-                ->process($this->getReader(), $this->getHeader());
+                ->process($this->getParser(), $this->getHeader());
 
             $this->_setFounds(count($this->_result));
 
@@ -295,6 +290,14 @@ class Reader extends Collection implements CsvReader
     /**
      * @inheritDoc
      */
+    public function getParser(): LeagueReader
+    {
+        return $this->_parser;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getPages(): int
     {
         return intval($this->_pages);
@@ -306,14 +309,6 @@ class Reader extends Collection implements CsvReader
     public function getPerPage(): int
     {
         return $this->perPage;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getReader(): LeagueReader
-    {
-        return $this->_reader;
     }
 
     /**
@@ -347,7 +342,7 @@ class Reader extends Collection implements CsvReader
     protected function prepare(LeagueReader $reader, array $params = []): CsvReader
     {
         if (!$this->_prepared) {
-            $this->_reader = $reader;
+            $this->_parser = $reader;
 
             foreach ($params as $key => $value) {
                 switch ($key) {
@@ -388,22 +383,22 @@ class Reader extends Collection implements CsvReader
 
             if ($this->hasHeader()) {
                 if (!$this->getHeader()) {
-                    $this->_reader->setHeaderOffset(0);
-                    $this->header = $this->_reader->getHeader();
+                    $this->_parser->setHeaderOffset(0);
+                    $this->header = $this->_parser->getHeader();
                 }
             }
             if (isset($params['primary'])) {
                 $this->setPrimary($params['primary']);
             }
 
-            $this->_reader->setDelimiter($this->delimiter)->setEnclosure($this->enclosure)->setEscape($this->escape);
+            $this->_parser->setDelimiter($this->delimiter)->setEnclosure($this->enclosure)->setEscape($this->escape);
 
             if ($this->encoding) {
-                CharsetConverter::addTo($this->_reader, $this->encoding[0], $this->encoding[1]);
+                CharsetConverter::addTo($this->_parser, $this->encoding[0], $this->encoding[1]);
             }
 
             $this->_stat = new Statement();
-            $this->_records = $this->getStat()->process($this->_reader);
+            $this->_records = $this->getStat()->process($this->_parser);
 
             $this->_setTotal((count($this->_records) - $this->offset));
 

@@ -2,8 +2,7 @@
 
 namespace tiFy\Plugins\Parser\Contracts;
 
-use League\Csv\Exception;
-use League\Csv\Reader;
+use League\Csv\{Exception, Reader};
 use tiFy\Contracts\Support\Collection;
 
 interface CsvReader extends Collection
@@ -55,18 +54,18 @@ interface CsvReader extends Collection
     public function getPages(): int;
 
     /**
+     * Récupération de l'instance du controleur de traitement.
+     *
+     * @return Reader
+     */
+    public function getParser(): Reader;
+
+    /**
      * Récupération du nombre d'élément par page.
      *
      * @return int
      */
     public function getPerPage(): int;
-
-    /**
-     * Récupération de l'instance du controleur de traitement.
-     *
-     * @return Reader
-     */
-    public function getReader(): Reader;
 
     /**
      * Récupération du nombre total d'éléments.
