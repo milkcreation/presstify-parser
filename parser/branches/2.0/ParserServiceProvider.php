@@ -3,8 +3,6 @@
 namespace tiFy\Plugins\Parser;
 
 use tiFy\Container\ServiceProvider;
-use tiFy\Plugins\Parser\Csv\Reader;
-
 
 class ParserServiceProvider extends ServiceProvider
 {
@@ -35,15 +33,5 @@ class ParserServiceProvider extends ServiceProvider
         $this->getContainer()->share('parser', function() {
             return new Parser($this->getContainer());
         });
-    }
-
-    /**
-     * Définition des contrôleurs de traitement Csv
-     *
-     * @return void
-     */
-    public function registerCsv()
-    {
-
     }
 }

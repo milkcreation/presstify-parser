@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace tiFy\Plugins\Parser\Xml;
+namespace tiFy\Plugins\Parser\Json;
 
 use Illuminate\Support\Collection as LaraCollection;
-use Rodenastyle\StreamParser\{Parsers\XMLParser as Parser, StreamParserInterface};
+use Rodenastyle\StreamParser\{Parsers\JSONParser as Parser, StreamParserInterface};
 use tiFy\Plugins\Parser\{
     AbstractReader,
-    Contracts\XmlReader,
+    Contracts\JsonReader,
     Contracts\Reader as BaseReaderContract
 };
 use Tightenco\Collect\Support\Collection as TightencoCollection;
@@ -14,14 +14,14 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
 /**
  * USAGE :
  * ---------------------------------------------------------------------------------------------------------------------
- use tiFy\Plugins\Parser\Xml\Reader
+ use tiFy\Plugins\Parser\Json\Reader
 
  $reader = Reader::createFromPath(
-    VENDOR_PATH . '/presstify-plugins/parser/Resources/sample/sample.xml', [
-   'offset'        => 1,
-   'primary'       => 'lastname',
-   'page'          => 1,
-   'per_page'      => -1
+    VENDOR_PATH . '/presstify-plugins/parser/Resources/sample/sample.json', [
+    'offset'        => 1,
+    'primary'       => 'lastname',
+    'page'          => 1,
+    'per_page'      => -1
  ]);
 
  // Récupération du tableau de la liste des éléments courants.
@@ -44,7 +44,7 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  // @var int
  $reader->getCount();
  */
-class Reader extends AbstractReader implements XmlReader
+class Reader extends AbstractReader implements JsonReader
 {
     /**
      * Instance du controleur de traitement.
@@ -62,6 +62,15 @@ class Reader extends AbstractReader implements XmlReader
     public function __construct(StreamParserInterface $parser)
     {
         $this->_parser = $parser;
+
+        TightencoCollection::macro('recursive', function () {
+            return $this->map(function ($value) {
+                if (is_array($value) || is_object($value)) {
+                    return (new TightencoCollection($value))->recursive();
+                }
+                return $value;
+            });
+        });
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\Parser\Contracts;
 
-interface XmlReader extends Reader
+interface JsonReader extends Reader
 {
 
 }

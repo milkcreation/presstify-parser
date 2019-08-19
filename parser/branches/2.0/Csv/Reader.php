@@ -2,93 +2,63 @@
 
 namespace tiFy\Plugins\Parser\Csv;
 
-use League\Csv\{CharsetConverter, Exception, Reader as LeagueReader, ResultSet, Statement};
-use tiFy\Support\Collection;
-use tiFy\Plugins\Parser\{Exceptions\CsvException, Contracts\CsvReader};
+use Exception;
+use Illuminate\Support\Collection as LaraCollection;
+use League\Csv\{
+    CharsetConverter as LeagueCsvCharsetConverter,
+    Reader as LeagueCsvReader,
+    Statement as LeagueCsvStatement
+};
+use tiFy\Plugins\Parser\{
+    AbstractReader,
+    Contracts\CsvReader,
+    Contracts\Reader as BaseReaderContract
+};
 
 /**
- *  USAGE :
- *
- * use tiFy\Plugins\Parser\Csv\Reader
- *
- * $csv = Reader::createFromPath('/example.csv', [
- *      'delimiter'     => ',',
- *      'enclosure'     => '"',
- *      'escape'        => '\\',
- *      'header'        => ['lastname', 'firstname', 'email'],
- *      'primary'       => 'lastname',
- *      'page'          => 1,
- *      'per_page'      => -1
- * ]);
- *
- * // Récupération du tableau de la liste des éléments courants.
- * // @var array
- * $csv->toArray();
- *
- * // Récupération la liste des éléments de la page 2.
- * $csv->page(2);
- *
- * // Récupération du nombre total de resultats.
- * // @var int
- * $csv->getTotal();
- *
- * // Récupération du nombre de page de résultats.
- * // @var int
- * $csv->getPages();
- *
- * // Récupération du nombre d'éléments courants.
- * // @var int
- * $csv->getFounds();
+ * USAGE :
+ * ---------------------------------------------------------------------------------------------------------------------
+ use tiFy\Plugins\Parser\Csv\Reader
+
+ $reader = Reader::createFromPath(
+    VENDOR_PATH . '/presstify-plugins/parser/Resources/sample/sample.csv', [
+    'delimiter'     => ',',
+    'enclosure'     => '"',
+    'escape'        => '\\',
+    'header'        => ['lastname', 'firstname', 'email'],
+    'offset'        => 1,
+    'primary'       => 'lastname',
+    'page'          => 1,
+    'per_page'      => -1
+ ]);
+
+ // Récupération du tableau de la liste des éléments courants.
+ // @var array
+ $reader->toArray();
+
+ // Récupération la liste des éléments de la page 2.
+ // @var array
+ $reader->fetchForPage(2)->all();
+
+ // Récupération du nombre total de resultats.
+ // @var int
+ $reader->getTotal();
+
+ // Récupération du numéro de la dernière de page.
+ // @var int
+ $reader->getLastPage();
+
+ // Récupération du nombre d'éléments courants.
+ // @var int
+ $reader->getCount();
  */
-class Reader extends Collection implements CsvReader
+class Reader extends AbstractReader implements CsvReader
 {
     /**
-     * Nombre d'éléments courant.
-     * @var int
-     */
-    private $_founds = 0;
-
-    /**
-     * Nombre total d'éléments.
-     * @var int
-     */
-    private $_total = 0;
-
-    /**
-     * Nombre total de page.
-     * @var int
-     */
-    private $_pages = 0;
-
-    /**
      * Instance du controleur de traitement.
-     * @var LeagueReader
+     * @var LeagueCsvReader|null
      */
     private $_parser;
-
-    /**
-     * Indicateur d'intégrité du controleur.
-     * @var boolean
-     */
-    private $_prepared = false;
-
-    /**
-     * Instance du jeu de résultat complet.
-     * @var ResultSet
-     */
-    private $_records;
-
-    /**
-     * Instance du jeu de résultat courant.
-     * @var ResultSet|null
-     */
-    private $_result;
-
-    /**
-     * Instance de déclaration des enregistrements.
-     * @var Statement
-     */
-    private $_stat;
 
     /**
      * Caractère de délimitation des colonnes.
@@ -109,301 +79,67 @@ class Reader extends Collection implements CsvReader
     protected $enclosure = '"';
 
     /**
-     * Caractère d'échappemment.
+     * Caractère d'échappemment des données.
      * @var string
      */
     protected $escape = '\\';
 
     /**
-     * Entête.
-     * {@internal
-     * - array > Indice de qualification des colonnes utilisé pour indexé la valeur des éléments. Tableau associatif.
-     * - true > La première ligne d'enregistrement est utilisée pour indexer la valeur des élements. Tableau associatif.
-     * - false > Les élements sont indexés numériquement. Tableau indexé.
-     * }
-     * @var string[]|boolean
-     */
-    protected $header = false;
-
-    /**
-     * Liste des éléments courants.
-     * @var array|null
-     */
-    protected $items;
-
-    /**
-     * Colonne de clé primaire utilisée pour indexer les éléments.
-     * @var string|int|null
-     */
-    protected $primary = null;
-
-    /**
-     * La ligne de démarrage du traitement.
-     * @var int
-     */
-    protected $offset = 0;
-
-    /**
-     * Numéro de la page courante.
-     * @var int
-     */
-    protected $page = 1;
-
-    /**
-     * Nombre d'éléments par page.
-     * @var int
-     */
-    protected $perPage = -1;
-
-    /**
-     * Définition du nombre d'éléments courants trouvés.
+     * CONSTRUCTEUR.
      *
-     * @param int $founds
+     * @param LeagueCsvReader $parser
      *
-     * @return $this
+     * @return void
      */
-    private function _setFounds(int $founds): CsvReader
+    public function __construct(LeagueCsvReader $parser)
     {
-        $this->_founds = $founds;
-
-        return $this;
+        $this->_parser = $parser;
     }
 
     /**
-     * Définition du nombre total de page d'éléments.
+     * Récupération de l'instance du controleur de traitement.
      *
-     * @param int $pages
-     *
-     * @return $this
+     * @return LeagueCsvReader
      */
-    private function _setPages(int $pages): CsvReader
-    {
-        $this->_pages = $pages;
-
-        return $this;
-    }
-
-    /**
-     * Définition du nombre total d'éléments.
-     *
-     * @param int $total
-     *
-     * @return $this
-     */
-    private function _setTotal(int $total): CsvReader
-    {
-        $this->_total = $total;
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function createFromPath(string $path, array $params = [], ...$args): CsvReader
-    {
-        array_unshift($args, $path);
-
-        return (new static())->prepare(LeagueReader::createFromPath(...$args), $params)->fetchItems();
-    }
-
-    /**
-     * Récupération de la liste des éléments courant.
-     *
-     * @return $this
-     *
-     * @throws Exception
-     * @throws CsvException
-     */
-    protected function fetchItems(): CsvReader
-    {
-        if (is_null($this->items)) {
-            $per_page = $this->getPerPage();
-            $page = $this->getPage();
-            $offset = $per_page > -1
-                ? (($page - 1) * $per_page) + $this->offset
-                : ($this->getPage() > 1 ? $this->getTotal() + 1 : $this->offset);
-
-            $this->_result = $this->getStat()
-                ->offset(intval($offset))
-                ->limit($per_page)
-                ->process($this->getParser(), $this->getHeader());
-
-            $this->_setFounds(count($this->_result));
-
-            $total_pages = ($per_page > -1) ? ceil($this->getTotal() / $per_page) : 1;
-            $this->_setPages(intval($total_pages));
-
-            $items = iterator_to_array($this->_result);
-            if (!is_null($this->primary)) {
-                $_items = [];
-                foreach ($items as $n => $item) {
-                    $key = $item[$this->primary];
-                    if (!isset($_items[$key])) {
-                        $_items[$key] = $item;
-                    } else {
-                        throw new CsvException(sprintf(
-                            __('Les valeurs de colonne primaire doivent être unique. "%s" en doublon à la ligne %d',
-                                'tify'), $key, $n
-                        ));
-                    }
-                }
-                $items = $_items;
-            }
-            $this->items = $items;
-        }
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function hasHeader(): bool
-    {
-        return !!$this->header;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getFounds(): int
-    {
-        return intval($this->_founds);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getHeader(): array
-    {
-        return is_array($this->header) ? $this->header : [];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getPage(): int
-    {
-        return $this->page;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getParser(): LeagueReader
+    protected function getParser(): LeagueCsvReader
     {
         return $this->_parser;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
+     * @return CsvReader
      */
-    public function getPages(): int
+    public static function createFromPath(string $path, array $params = [], ...$args): BaseReaderContract
     {
-        return intval($this->_pages);
+        array_unshift($args, $path);
+
+        return (new static(LeagueCsvReader::createFromPath(...$args)))->setParams($params)->fetch();
     }
 
     /**
      * @inheritDoc
      */
-    public function getPerPage(): int
+    public function fetchRecords(): BaseReaderContract
     {
-        return $this->perPage;
-    }
-
-    /**
-     * Récupération de l'instance de déclaration des enregistrements.
-     *
-     * @return Statement
-     */
-    protected function getStat(): Statement
-    {
-        return $this->_stat;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getTotal(): int
-    {
-        return intval($this->_total);
-    }
-
-    /**
-     * Préparation du controleur.
-     *
-     * @param LeagueReader $reader
-     * @param array $params Liste des paramètres.
-     *
-     * @return $this
-     *
-     * @throws Exception
-     */
-    protected function prepare(LeagueReader $reader, array $params = []): CsvReader
-    {
-        if (!$this->_prepared) {
-            $this->_parser = $reader;
-
-            foreach ($params as $key => $value) {
-                switch ($key) {
-                    case 'delimiter' :
-                        $this->delimiter = $value;
-                        break;
-                    case 'encoding' :
-                        $this->setEncoding($value);
-                        break;
-                    case 'enclosure' :
-                        $this->enclosure = $value;
-                        break;
-                    case 'escape' :
-                        $this->escape = $value;
-                        break;
-                    case 'header' :
-                        $this->header = $value;
-                        break;
-                    case 'offset' :
-                        $this->offset = intval($value);
-                        break;
-                    case 'orderby' :
-                        // @todo
-                        // $this->orderBy = $value;
-                        break;
-                    case 'page' :
-                        $this->page = intval($value);
-                        break;
-                    case 'per_page' :
-                        $this->perPage = intval($value);
-                        break;
-                    case 'search' :
-                        // @todo
-                        // $this->searchArgs = $value;
-                        break;
-                }
-            }
-
-            if ($this->hasHeader()) {
-                if (!$this->getHeader()) {
-                    $this->_parser->setHeaderOffset(0);
-                    $this->header = $this->_parser->getHeader();
-                }
-            }
-            if (isset($params['primary'])) {
-                $this->setPrimary($params['primary']);
-            }
-
-            $this->_parser->setDelimiter($this->delimiter)->setEnclosure($this->enclosure)->setEscape($this->escape);
-
-            if ($this->encoding) {
-                CharsetConverter::addTo($this->_parser, $this->encoding[0], $this->encoding[1]);
-            }
-
-            $this->_stat = new Statement();
-            $this->_records = $this->getStat()->process($this->_parser);
-
-            $this->_setTotal((count($this->_records) - $this->offset));
-
-            $this->_prepared = true;
+        if (is_null($this->records)) {
+            $records = (new LeagueCsvStatement())->process($this->getParser(), $this->getHeader());
+            $this->records = new LaraCollection(iterator_to_array($records));
+            $this->setTotal($this->records->count() - $this->getOffset());
         }
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setDelimiter(string $delimiter): CsvReader
+    {
+        $this->delimiter = $delimiter;
+        $this->getParser()->setDelimiter($this->delimiter);
+
         return $this;
     }
 
@@ -413,6 +149,7 @@ class Reader extends Collection implements CsvReader
     public function setEncoding(array $encoding): CsvReader
     {
         $this->encoding = [$encoding[0] ?? 'utf-8', $encoding[1] ?? 'utf-8'];
+        LeagueCsvCharsetConverter::addTo($this->getParser(), $this->encoding[0], $this->encoding[1]);
 
         return $this;
     }
@@ -420,41 +157,72 @@ class Reader extends Collection implements CsvReader
     /**
      * @inheritDoc
      */
-    public function setPrimary($primary): CsvReader
+    public function setEnclosure(string $enclosure): CsvReader
     {
-        if (is_numeric($primary)) {
-            $this->primary = intval($primary);
-        } elseif (is_string($primary) && is_array($this->getHeader()) && in_array($primary, $this->getHeader())) {
-            if (in_array($primary, $this->getHeader())) {
-                $this->primary = $primary;
+        $this->enclosure = $enclosure;
+        $this->getParser()->setEnclosure($this->enclosure);
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setEscape(string $escape): CsvReader
+    {
+        $this->escape = $escape;
+        $this->getParser()->setEscape($this->escape);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
+    public function setParams(array $params = []): BaseReaderContract
+    {
+        foreach ($params as $key => $param) {
+            switch ($key) {
+                case 'delimiter' :
+                    $this->setDelimiter($param);
+                    break;
+                case 'encoding' :
+                    $this->setEncoding($param);
+                    break;
+                case 'enclosure' :
+                    $this->setEnclosure($param);
+                    break;
+                case 'escape' :
+                    $this->setEscape($param);
+                    break;
+                case 'header' :
+                    $this->header = $param;
+                    break;
+                case 'offset' :
+                    $this->setOffset($param);
+                    break;
+                case 'page' :
+                    $this->setPage($param);
+                    break;
+                case 'per_page' :
+                    $this->setPerPage($param);
+                    break;
             }
         }
-        return $this;
-    }
 
-    /**
-     * @inheritDoc
-     */
-    public function page(int $page): CsvReader
-    {
-        if ($this->page !== $page) {
-            $this->page = $page > 0 ? $page : 1;
-            $this->items = null;
-            $this->fetchItems();
+        if ($this->hasHeader()) {
+            if ( ! $this->getHeader()) {
+                $this->getParser()->setHeaderOffset(0);
+                $this->header = $this->getParser()->getHeader();
+            }
         }
-        return $this;
-    }
 
-    /**
-     * @inheritDoc
-     */
-    public function toArray(): array
-    {
-        try {
-            $this->fetchItems();
-            return $this->all() ?: [];
-        } catch (Exception $e) {
-            return [];
+        if (isset($params['primary'])) {
+            $this->setPrimary($params['primary']);
         }
+
+        return $this;
     }
 }
