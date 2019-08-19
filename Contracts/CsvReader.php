@@ -2,77 +2,20 @@
 
 namespace tiFy\Plugins\Parser\Contracts;
 
-use League\Csv\{Exception, Reader};
-use tiFy\Contracts\Support\Collection;
+use League\Csv\Exception as LeagueCsvException;
 
-interface CsvReader extends Collection
+interface CsvReader extends Reader
 {
     /**
-     * Création d'une instance basé sur un chemin.
+     * Définition du caractère de délimitation des colonnes.
      *
-     * @param string $path Chemin vers le fichier à traiter.
-     * @param array $params Liste des paramètres de configuration.
-     * @param array $args Liste des arguments dynamiques fopen. Seuls mode et context sont permis.
+     * @param string $delimiter
      *
      * @return static
-     */
-    public static function createFromPath(string $path, array $params = [], ...$args): CsvReader;
-
-    /**
-     * Vérification d'existance d'une entête.
      *
-     * @return boolean
+     * @throws LeagueCsvException
      */
-    public function hasHeader(): bool;
-
-    /**
-     * Récupération de la liste des colonnes.
-     *
-     * @return string[]
-     */
-    public function getHeader(): array;
-
-    /**
-     * Récupération du nombre d'éléments courant.
-     *
-     * @return int
-     */
-    public function getFounds(): int;
-
-    /**
-     * Récupération de la page courante.
-     *
-     * @return int
-     */
-    public function getPage(): int;
-
-    /**
-     * Récupération du nombre total de page.
-     *
-     * @return int
-     */
-    public function getPages(): int;
-
-    /**
-     * Récupération de l'instance du controleur de traitement.
-     *
-     * @return Reader
-     */
-    public function getParser(): Reader;
-
-    /**
-     * Récupération du nombre d'élément par page.
-     *
-     * @return int
-     */
-    public function getPerPage(): int;
-
-    /**
-     * Récupération du nombre total d'éléments.
-     *
-     * @return int
-     */
-    public function getTotal(): int;
+    public function setDelimiter(string $delimiter): CsvReader;
 
     /**
      * Définition de la convertion d'encodage des résultats.
@@ -83,33 +26,30 @@ interface CsvReader extends Collection
      * }
      *
      * @return static
+     *
+     * @throws LeagueCsvException
      */
     public function setEncoding(array $encoding): CsvReader;
 
     /**
-     * Définition de la colonne de clé primaire.
+     * Définition du caractère d'encapsulation des données.
      *
-     * @param string|int $primary Indice ou Nom de qualification de la colonne de clé primaire
-     *
-     * @return static
-     */
-    public function setPrimary($primary): CsvReader;
-
-    /**
-     * Définition de la page courante de récupération des éléments.
-     *
-     * @param int $page
+     * @param string $enclosure
      *
      * @return static
      *
-     * @throws Exception
+     * @throws LeagueCsvException
      */
-    public function page(int $page): CsvReader;
+    public function setEnclosure(string $enclosure): CsvReader;
 
     /**
-     * Récupération de la liste des éléments sous forme de tableau.
+     * Définition du caractère d'échappemment des données.
      *
-     * @return array
+     * @param string $escape
+     *
+     * @return static
+     *
+     * @throws LeagueCsvException
      */
-    public function toArray(): array;
+    public function setEscape(string $escape): CsvReader;
 }
