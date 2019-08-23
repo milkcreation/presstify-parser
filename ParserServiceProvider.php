@@ -3,6 +3,10 @@
 namespace tiFy\Plugins\Parser;
 
 use tiFy\Container\ServiceProvider;
+use tiFy\Plugins\Parser\Template\FileListTable\{
+    Contracts\FileBuilder as FileListTableFileBuilderContract,
+    FileBuilder as FileListTableFileBuilder
+};
 
 class ParserServiceProvider extends ServiceProvider
 {
@@ -16,7 +20,7 @@ class ParserServiceProvider extends ServiceProvider
     ];
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function boot()
     {
@@ -26,12 +30,25 @@ class ParserServiceProvider extends ServiceProvider
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function register()
     {
         $this->getContainer()->share('parser', function() {
-            return new Parser($this->getContainer());
+            return new ParserManager($this->getContainer());
+        });
+        $this->registerImportListTable();
+    }
+
+    /**
+     * Déclaration du template d'import.
+     *
+     * @return void
+     */
+    public function registerImportListTable(): void
+    {
+        $this->getContainer()->add(FileListTableFileBuilderContract::class, function () {
+            return new FileListTableFileBuilder();
         });
     }
 }

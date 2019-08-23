@@ -5,7 +5,10 @@ namespace tiFy\Plugins\Parser;
 use Exception;
 use Illuminate\Support\Collection as LaraCollection;
 use tiFy\Support\Collection;
-use tiFy\Plugins\Parser\Contracts\Reader as ReaderContract;
+use tiFy\Plugins\Parser\{
+    Contracts\FileParser as FileParserContract,
+    Contracts\Reader as ReaderContract
+};
 
 abstract class AbstractReader extends Collection implements ReaderContract
 {
@@ -20,23 +23,6 @@ abstract class AbstractReader extends Collection implements ReaderContract
      * @var int
      */
     protected $count = 0;
-
-    /**
-     * Entête.
-     * {@internal
-     * - array > Tableau indexé. Indice de qualification des colonnes utilisées pour indéxer la valeur des éléments.
-     * - true > La première ligne d'enregistrement est utilisée pour indexer la valeur des élements.
-     * - false > Les élements sont indexés numériquement. Tableau indexé.
-     * }
-     * @var string[]|boolean
-     */
-    protected $header = false;
-
-    /**
-     * Liste des éléments courants.
-     * @var iterable
-     */
-    protected $items;
 
     /**
      * Numéro de la dernière page.
@@ -55,6 +41,12 @@ abstract class AbstractReader extends Collection implements ReaderContract
      * @var int
      */
     protected $page = 1;
+
+    /**
+     * Instance de la classe de traitement du fichier source.
+     * @var FileParser|null
+     */
+    protected $parser;
 
     /**
      * Nombre d'éléments par page.
@@ -81,6 +73,18 @@ abstract class AbstractReader extends Collection implements ReaderContract
     protected $total = 0;
 
     /**
+     * CONSTRUCTEUR.
+     *
+     * @param FileParserContract $parser Instance de la classe de traitement du fichier source.
+     *
+     * @return void
+     */
+    public function __construct(FileParserContract $parser)
+    {
+        $this->setParser($parser);
+    }
+
+    /**
      * @inheritDoc
      */
     abstract public static function createFromPath(string $path, array $params = [], ...$args): ReaderContract;
@@ -101,7 +105,7 @@ abstract class AbstractReader extends Collection implements ReaderContract
      */
     public function fetchItems(): ReaderContract
     {
-        $this->items = null;
+        $this->items = [];
 
         $per_page = $this->getPerPage();
         $page     = $this->getPage();
@@ -141,19 +145,16 @@ abstract class AbstractReader extends Collection implements ReaderContract
     public function fetchRecords(): ReaderContract
     {
         if (is_null($this->records)) {
-            $this->records = new LaraCollection([]);
+            try {
+                $this->getParser()->parse();
+            } catch (Exception $e) {
+
+            }
+            $this->records = $this->getParser()->collect();
             $this->setTotal($this->records->count() - $this->getOffset());
         }
 
         return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function hasHeader(): bool
-    {
-        return ! ! $this->header;
     }
 
     /**
@@ -170,14 +171,6 @@ abstract class AbstractReader extends Collection implements ReaderContract
     public function getCount(): int
     {
         return $this->count;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getHeader(): array
-    {
-        return is_array($this->header) ? $this->header : [];
     }
 
     /**
@@ -202,6 +195,14 @@ abstract class AbstractReader extends Collection implements ReaderContract
     public function getPage(): int
     {
         return $this->page;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getParser(): FileParserContract
+    {
+        return $this->parser;
     }
 
     /**
@@ -314,6 +315,16 @@ abstract class AbstractReader extends Collection implements ReaderContract
     public function setPerPage(int $per_page): ReaderContract
     {
         $this->perPage = $per_page > 0 ? $per_page : null;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setParser(FileParserContract $parser): ReaderContract
+    {
+        $this->parser = $parser;
 
         return $this;
     }

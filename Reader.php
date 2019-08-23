@@ -5,16 +5,17 @@ namespace tiFy\Plugins\Parser;
 use Exception;
 use tiFy\Plugins\Parser\{
     Contracts\Reader as ReaderContract,
-    Csv\Reader as CsvReader,
     Exceptions\ReaderException,
-    Json\Reader as JsonReader,
-    Xml\Reader as XmlReader
+    Parsers\CsvReader,
+    Parsers\JsonReader,
+    Parsers\LogReader,
+    Parsers\XmlReader
 };
 
 /**
  * USAGE :
  * ---------------------------------------------------------------------------------------------------------------------
- use tiFy\Plugins\Parser\Reader
+ use tiFy\Plugins\Parser\Reader;
 
  $reader = Reader::createFromPath(
     VENDOR_PATH . '/presstify-plugins/parser/Resources/sample/sample.json', [
@@ -24,9 +25,17 @@ use tiFy\Plugins\Parser\{
     'per_page'      => -1
  ]);
 
+ // Lancement de la récupération des éléments.
+ // @var \tiFy\Plugins\Contracts\Reader
+ $reader->fetch();
+
  // Récupération du tableau de la liste des éléments courants.
  // @var array
- $reader->toArray();
+ $reader->all();
+
+ // Récupération de la liste des complète des enregistrements.
+ // @var array
+ $reader->getRecords();
 
  // Récupération la liste des éléments de la page 2.
  // @var array
@@ -67,6 +76,9 @@ class Reader extends AbstractReader implements ReaderContract
                     break;
                 case 'json' :
                     return JsonReader::createFromPath($path, $params, ...$args);
+                    break;
+                case 'log' :
+                    return LogReader::createFromPath($path, $params, ...$args);
                     break;
                 case 'xml' :
                     return XmlReader::createFromPath($path, $params, ...$args);

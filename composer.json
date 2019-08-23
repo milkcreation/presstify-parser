@@ -13,7 +13,7 @@
     "xml"
   ],
   "homepage": "https://svn.tigreblanc.fr/presstify-plugins/parser",
-  "time": "2019-08-18",
+  "time": "2019-08-23",
   "license": "proprietary",
   "authors": [
     {
@@ -30,9 +30,11 @@
   ],
   "require": {
     "composer/installers": "~1.0",
+    "ext-xmlreader": "*",
     "faisalman/simple-excel-php": "0.3.*",
     "league/csv": "^9.0",
     "league/fractal": "^0.18",
+    "maxakawizard/json-collection-parser": "^1.5",
     "presstify/framework": "2.0.*",
     "rodenastyle/stream-parser": "^1.2"
   },

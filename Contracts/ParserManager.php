@@ -2,7 +2,9 @@
 
 namespace tiFy\Plugins\Parser\Contracts;
 
-interface CsvReader extends Reader
+use tiFy\Contracts\Support\Manager;
+
+interface ParserManager extends Manager
 {
 
 }

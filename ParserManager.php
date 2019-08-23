@@ -2,15 +2,14 @@
 
 namespace tiFy\Plugins\Parser;
 
-use Psr\Container\ContainerInterface;
+use tiFy\Plugins\Parser\Contracts\ParserManager as ParserManagerContract;
+use tiFy\Support\Manager;
 
 /**
- * Class Parser
- *
- * @desc Extension PresstiFy de traitement, conversion et écriture de données au format CSV,Excel,JSON,XML.
+ * @desc Extension PresstiFy de traitement, conversion et écriture de données au format CSV,Excel,JSON,LOG,XML.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\Parser
- * @version 2.0.4
+ * @version 2.0.5
  *
  * USAGE :
  * Activation
@@ -36,23 +35,7 @@ use Psr\Container\ContainerInterface;
  * Dans le dossier de config, créer le fichier parser.php
  * @see Resources/config/parser.php
  */
-class Parser
+class ParserManager extends Manager implements ParserManagerContract
 {
-    /**
-     * Instance du conteneur d'injection de dépendances.
-     * @var ContainerInterface
-     */
-    protected $container;
 
-    /**
-     * CONSTRUCTEUR.
-     *
-     * @param ContainerInterface $container
-     *
-     * @return void
-     */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
 }
