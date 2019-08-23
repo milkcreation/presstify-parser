@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\Parser\Contracts;
 
-interface CsvReader extends Reader
+interface LogReader extends Reader
 {
 
 }

@@ -42,13 +42,6 @@ interface Reader extends Collection
     public function fetchRecords(): Reader;
 
     /**
-     * Vérification d'existance d'une entête.
-     *
-     * @return boolean
-     */
-    public function hasHeader(): bool;
-
-    /**
      * Vérification d'existance d'une colonne de clés primaires d'indexation des éléments.
      *
      * @return boolean
@@ -61,13 +54,6 @@ interface Reader extends Collection
      * @return int
      */
     public function getCount(): int;
-
-    /**
-     * Récupération de la liste des colonnes.
-     *
-     * @return string[]
-     */
-    public function getHeader(): array;
 
     /**
      * Récupération du numéro de la dernière page.
@@ -89,6 +75,13 @@ interface Reader extends Collection
      * @return int
      */
     public function getPage(): int;
+
+    /**
+     * Récupération de l'instance du controleur de traitement.
+     *
+     * @return FileParser
+     */
+    public function getParser(): FileParser;
 
     /**
      * Récupération du nombre d'élément par page.
@@ -162,6 +155,15 @@ interface Reader extends Collection
      * @return static
      */
     public function setParams(array $params = []): Reader;
+
+    /**
+     * Définition de l'instance de la classe de traitement du fichier source.
+     *
+     * @param FileParser $parser
+     *
+     * @return static
+     */
+    public function setParser(FileParser $parser): Reader;
 
     /**
      * Définition du nombre total d'éléments par page.

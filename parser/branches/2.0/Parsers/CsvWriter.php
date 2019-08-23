@@ -1,15 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace tiFy\Plugins\Parser\Csv;
+namespace tiFy\Plugins\Parser\Parsers;
 
-use League\Csv\CharsetConverter;
-use League\Csv\ColumnConsistency;
-use League\Csv\Exception;
-use League\Csv\Writer as LeagueWriter;
-use League\Csv\CannotInsertRecord;
+use League\Csv\{
+    CannotInsertRecord,
+    CharsetConverter,
+    ColumnConsistency,
+    Exception,
+    Writer as LeagueWriter
+};
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use tiFy\Plugins\Parser\Contracts\CsvWriter;
-use tiFy\Plugins\Parser\Exceptions\CsvException;
+use tiFy\Plugins\Parser\{
+    Contracts\CsvWriter as CsvWriterContract,
+    Exceptions\CsvException
+};
 
 /**
  *  USAGE :
@@ -68,7 +72,7 @@ use tiFy\Plugins\Parser\Exceptions\CsvException;
  * // Génération de la réponse HTTP de téléchargement.
  * $csv->download('queen-members.csv');
  */
-class Writer implements CsvWriter
+class CsvWriter implements CsvWriterContract
 {
     /**
      * Indicateur d'intégrité du controleur.
@@ -150,7 +154,7 @@ class Writer implements CsvWriter
     /**
      * @inheritDoc
      */
-    public static function createFromPath(?string $path = null, array $params = [], ...$args): CsvWriter
+    public static function createFromPath(?string $path = null, array $params = [], ...$args): CsvWriterContract
     {
         array_unshift($args, $path ?? 'php://temp');
 
@@ -160,7 +164,7 @@ class Writer implements CsvWriter
     /**
      * @inheritDoc
      */
-    public function addRow(array $line): CsvWriter
+    public function addRow(array $line): CsvWriterContract
     {
         try {
             $this->getWriter()->insertOne($line);
@@ -175,7 +179,7 @@ class Writer implements CsvWriter
     /**
      * @inheritDoc
      */
-    public function addRows($lines): CsvWriter
+    public function addRows($lines): CsvWriterContract
     {
         try {
             foreach ($lines as $line) {
@@ -210,7 +214,7 @@ class Writer implements CsvWriter
     /**
      * @inheritDoc
      */
-    public function setEncoding(array $encoding): CsvWriter
+    public function setEncoding(array $encoding): CsvWriterContract
     {
         $this->encoding = [$encoding[0] ?? 'utf-8', $encoding[1] ?? 'utf-8'];
 
@@ -220,7 +224,7 @@ class Writer implements CsvWriter
     /**
      * @inheritDoc
      */
-    public function setErrors(array $errors = []): CsvWriter
+    public function setErrors(array $errors = []): CsvWriterContract
     {
         if (!isset($errors['_checker'])) {
             $errors['_checker'] = __('Nombre de colonnes invalide pour l\'enregistrement %s.', 'theme');
