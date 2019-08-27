@@ -5,7 +5,9 @@ namespace tiFy\Plugins\Parser;
 use tiFy\Container\ServiceProvider;
 use tiFy\Plugins\Parser\Template\FileListTable\{
     Contracts\FileBuilder as FileListTableFileBuilderContract,
-    FileBuilder as FileListTableFileBuilder
+    FileBuilder as FileListTableFileBuilder,
+    Contracts\Source as SourceListTableFileBuilderContract,
+    Source as SourceListTableFileBuilder
 };
 
 class ParserServiceProvider extends ServiceProvider
@@ -49,6 +51,10 @@ class ParserServiceProvider extends ServiceProvider
     {
         $this->getContainer()->add(FileListTableFileBuilderContract::class, function () {
             return new FileListTableFileBuilder();
+        });
+
+        $this->getContainer()->add(SourceListTableFileBuilderContract::class, function () {
+            return new SourceListTableFileBuilder();
         });
     }
 }
