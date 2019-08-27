@@ -8,9 +8,13 @@ use tiFy\Template\Templates\ListTable\{
     Contracts\DbBuilder,
     ListTable as BaseListTable
 };
-use tiFy\Plugins\Parser\Template\FileListTable\Contracts\FileBuilder;
+use tiFy\Plugins\Parser\Template\FileListTable\Contracts\{
+    FileBuilder,
+    FileListTable as FileListTableContract,
+    Source
+};
 
-class FileListTable extends BaseListTable
+class FileListTable extends BaseListTable implements FileListTableContract
 {
     /**
      * Liste des fournisseurs de services.
@@ -28,5 +32,13 @@ class FileListTable extends BaseListTable
     public function builder(): FactoryBuilder
     {
         return parent::builder();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function source(): ?Source
+    {
+        return $this->resolve('source');
     }
 }

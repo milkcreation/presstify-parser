@@ -37,51 +37,29 @@ class FileBuilder extends BaseBuilder implements FileBuilderContract
     {
         $this->parse();
 
-        try {
-            $reader = Reader::createFromPath(
-                (string)$this->getSource('filename'), [
-                'page'     => $this->getPage(),
-                'per_page' => $this->getPerPage(),
-            ])->fetch();
+        if ($source = $this->factory->source()) {
+            try {
+                $reader = Reader::createFromPath(
+                    $source->fetch()->getFilename(), [
+                    'page'     => $this->getPage(),
+                    'per_page' => $this->getPerPage(),
+                ])->fetch();
 
-            $this->factory->items()->set($reader->all());
+                $this->factory->items()->set($reader->all());
 
-            if ($count = $reader->count()) {
-                $this->factory->pagination()
-                              ->setCount($count)
-                              ->setCurrentPage($reader->getPage())
-                              ->setPerPage($reader->getPerPage())
-                              ->setLastPage($reader->getLastPage())
-                              ->setTotal($reader->getTotal())
-                              ->parse();
+                if ($count = $reader->count()) {
+                    $this->factory->pagination()
+                        ->setCount($count)
+                        ->setCurrentPage($reader->getPage())
+                        ->setPerPage($reader->getPerPage())
+                        ->setLastPage($reader->getLastPage())
+                        ->setTotal($reader->getTotal())
+                        ->parse();
+                }
+            } catch (ReaderException $e) {
+                $this->factory->label(['no_item' => $e->getMessage()]);
             }
-        } catch(ReaderException $e) {
-            $this->factory->label(['no_item' => $e->getMessage()]);
         }
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getSource(?string $key = null, $default = null)
-    {
-        if (!$this->source instanceof ParamsBag) {
-            return $default;
-        } elseif (is_null($key)) {
-            return $this->source;
-        } else {
-            return $this->source->get($key, $default);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setSource(array $source): BaseBuilderContract
-    {
-        $this->source = ParamsBag::createFromAttrs($source);
 
         return $this;
     }
