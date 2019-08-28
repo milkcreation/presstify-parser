@@ -168,11 +168,11 @@ interface Reader extends Collection
     /**
      * Définition du nombre total d'éléments par page.
      *
-     * @param int $per_page
+     * @param int|null $per_page
      *
      * @return static
      */
-    public function setPerPage(int $per_page): Reader;
+    public function setPerPage(?int $per_page = null): Reader;
 
     /**
      * Définition de la colonne de clé primaire.
