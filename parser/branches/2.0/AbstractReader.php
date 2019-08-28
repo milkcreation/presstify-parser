@@ -312,7 +312,7 @@ abstract class AbstractReader extends Collection implements ReaderContract
     /**
      * @inheritDoc
      */
-    public function setPerPage(int $per_page): ReaderContract
+    public function setPerPage(?int $per_page = null): ReaderContract
     {
         $this->perPage = $per_page > 0 ? $per_page : null;
 

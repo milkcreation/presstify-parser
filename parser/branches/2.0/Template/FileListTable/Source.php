@@ -86,7 +86,7 @@ class Source extends ParamsBag implements SourceContract
                         $this->current = current($this->files);
                     }
                 } catch (Exception $e) {
-                    $this->current = '';
+                    $this->current = null;
                 }
             } elseif ($filename = $this->get('filename')) {
                 $this->current = new SplFileInfo($filename);
