@@ -2,7 +2,6 @@
 
 namespace tiFy\Plugins\Parser\Template\FileListTable;
 
-use tiFy\Support\ParamsBag;
 use tiFy\Plugins\Parser\{
     Exceptions\ReaderException,
     Reader
@@ -11,7 +10,8 @@ use tiFy\Plugins\Parser\Template\FileListTable\Contracts\FileBuilder as FileBuil
 use tiFy\Template\Factory\FactoryAwareTrait;
 use tiFy\Template\Templates\ListTable\{
     Builder as BaseBuilder,
-    Contracts\Builder as BaseBuilderContract
+    Contracts\Builder as BaseBuilderContract,
+    Contracts\Item
 };
 
 class FileBuilder extends BaseBuilder implements FileBuilderContract
@@ -25,10 +25,27 @@ class FileBuilder extends BaseBuilder implements FileBuilderContract
     protected $factory;
 
     /**
-     * Source de récupération de la liste des éléments.
-     * @var ParamsBag|null
+     * @inheritDoc
      */
-    protected $source;
+    public function getItem(string $key): ?Item
+    {
+        $this->parse();
+
+        if ($source = $this->factory->source()) {
+            try {
+                $reader = Reader::createFromPath($source->fetch()->getFilename())->fetchRecords();
+
+                $this->factory->items()->set($reader->getRecords());
+
+                return $this->factory->items()->collect()->first(function (Item $item) use ($key) {
+                    return $item->getKeyValue() === $key;
+                });
+            } catch (ReaderException $e) {
+                return null;
+            }
+        }
+        return null;
+    }
 
     /**
      * @inheritDoc
@@ -45,7 +62,7 @@ class FileBuilder extends BaseBuilder implements FileBuilderContract
                     'per_page' => $this->getPerPage(),
                 ])->fetch();
 
-                $this->factory->items()->set($reader->all());
+                $this->factory->items()->set(array_values($reader->all()));
 
                 if ($count = $reader->count()) {
                     $this->factory->pagination()

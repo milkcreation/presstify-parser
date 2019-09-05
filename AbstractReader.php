@@ -111,8 +111,9 @@ abstract class AbstractReader extends Collection implements ReaderContract
         $page     = $this->getPage();
         $total    = $this->getTotal();
         $offset   = $this->getOffset();
+        $records = clone $this->getRecords();
 
-        $this->chunks = $this->getRecords()->splice($offset);
+        $this->chunks = $records->splice($offset);
         $this->chunks = $this->chunks->forPage($page, $per_page);
         if ($this->hasPrimary()) {
             $this->chunks = $this->chunks->keyBy($this->getPrimary());
@@ -151,6 +152,7 @@ abstract class AbstractReader extends Collection implements ReaderContract
 
             }
             $this->records = $this->getParser()->collect();
+
             $this->setTotal($this->records->count() - $this->getOffset());
         }
 
