@@ -4,7 +4,11 @@ namespace tiFy\Plugins\Parser\Contracts;
 
 use Illuminate\Support\Collection as LaraCollection;
 use tiFy\Contracts\Support\Collection;
+use tiFy\Support\Traits\PaginationAwareTrait;
 
+/**
+ * @mixin PaginationAwareTrait
+ */
 interface Reader extends Collection
 {
     /**
@@ -49,46 +53,11 @@ interface Reader extends Collection
     public function hasPrimary(): bool;
 
     /**
-     * Récupération du nombre d'éléments courant.
-     *
-     * @return int
-     */
-    public function getCount(): int;
-
-    /**
-     * Récupération du numéro de la dernière page.
-     *
-     * @return int
-     */
-    public function getLastPage(): int;
-
-    /**
-     * Récupération de la ligne de démarrage du traitement.
-     *
-     * @return int
-     */
-    public function getOffset(): int;
-
-    /**
-     * Récupération de la page courante.
-     *
-     * @return int
-     */
-    public function getPage(): int;
-
-    /**
      * Récupération de l'instance du controleur de traitement.
      *
      * @return FileParser
      */
     public function getParser(): FileParser;
-
-    /**
-     * Récupération du nombre d'élément par page.
-     *
-     * @return int|null
-     */
-    public function getPerPage(): ?int;
 
     /**
      * Récupération de la colonne de clés primaires d'indexation des éléments.
@@ -103,49 +72,6 @@ interface Reader extends Collection
      * @return LaraCollection|null
      */
     public function getRecords(): ?LaraCollection;
-
-    /**
-     * Récupération du nombre total d'éléments.
-     *
-     * @return int
-     */
-    public function getTotal(): int;
-
-    /**
-     * Définition du nombre d'éléments courants trouvés.
-     *
-     * @param int $count
-     *
-     * @return static
-     */
-    public function setCount(int $count): Reader;
-
-    /**
-     * Définition du numéro de la dernière page.
-     *
-     * @param int $last_page
-     *
-     * @return static
-     */
-    public function setLastPage(int $last_page): Reader;
-
-    /**
-     * Définition de la ligne de démarrage du traitement de récupération des éléments.
-     *
-     * @param int $offset
-     *
-     * @return static
-     */
-    public function setOffset(int $offset): Reader;
-
-    /**
-     * Définition de la page courante de récupération des éléments.
-     *
-     * @param int $page
-     *
-     * @return static
-     */
-    public function setPage(int $page): Reader;
 
     /**
      * Définition de la liste des paramètres.
@@ -166,15 +92,6 @@ interface Reader extends Collection
     public function setParser(FileParser $parser): Reader;
 
     /**
-     * Définition du nombre total d'éléments par page.
-     *
-     * @param int|null $per_page
-     *
-     * @return static
-     */
-    public function setPerPage(?int $per_page = null): Reader;
-
-    /**
      * Définition de la colonne de clé primaire.
      *
      * @param string|int $primary Indice ou Nom de qualification de la colonne de clé primaire.
@@ -182,15 +99,6 @@ interface Reader extends Collection
      * @return static
      */
     public function setPrimary($primary): Reader;
-
-    /**
-     * Définition du nombre total d'éléments.
-     *
-     * @param int $total
-     *
-     * @return static
-     */
-    public function setTotal(int $total): Reader;
 
     /**
      * Récupération de la liste des éléments sous forme de tableau.

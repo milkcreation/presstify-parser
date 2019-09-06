@@ -4,14 +4,13 @@ namespace tiFy\Plugins\Parser;
 
 use Exception;
 use Illuminate\Support\Collection as LaraCollection;
-use tiFy\Support\Collection;
-use tiFy\Plugins\Parser\{
-    Contracts\FileParser as FileParserContract,
-    Contracts\Reader as ReaderContract
-};
+use tiFy\Plugins\Parser\{Contracts\FileParser as FileParserContract, Contracts\Reader as ReaderContract};
+use tiFy\Support\{Collection, Traits\PaginationAwareTrait};
 
 abstract class AbstractReader extends Collection implements ReaderContract
 {
+    use PaginationAwareTrait;
+
     /**
      * Instance du jeu de résultat courant.
      * @var LaraCollection|null
@@ -19,40 +18,10 @@ abstract class AbstractReader extends Collection implements ReaderContract
     protected $chunks;
 
     /**
-     * Nombre d'éléments courant.
-     * @var int
-     */
-    protected $count = 0;
-
-    /**
-     * Numéro de la dernière page.
-     * @var int
-     */
-    protected $lastPage = 1;
-
-    /**
-     * La ligne de démarrage du traitement.
-     * @var int
-     */
-    protected $offset = 0;
-
-    /**
-     * Numéro de la page courante.
-     * @var int
-     */
-    protected $page = 1;
-
-    /**
      * Instance de la classe de traitement du fichier source.
      * @var FileParser|null
      */
     protected $parser;
-
-    /**
-     * Nombre d'éléments par page.
-     * @var int|null
-     */
-    protected $perPage;
 
     /**
      * Colonne de clés primaires d'indexation des éléments.
@@ -65,12 +34,6 @@ abstract class AbstractReader extends Collection implements ReaderContract
      * @var LaraCollection|null
      */
     protected $records;
-
-    /**
-     * Nombre total d'éléments.
-     * @var int
-     */
-    protected $total = 0;
 
     /**
      * CONSTRUCTEUR.
@@ -108,9 +71,9 @@ abstract class AbstractReader extends Collection implements ReaderContract
         $this->items = [];
 
         $per_page = $this->getPerPage();
-        $page     = $this->getPage();
-        $total    = $this->getTotal();
-        $offset   = $this->getOffset();
+        $page = $this->getPage();
+        $total = $this->getTotal();
+        $offset = $this->getOffset();
         $records = clone $this->getRecords();
 
         $this->chunks = $records->splice($offset);
@@ -170,49 +133,9 @@ abstract class AbstractReader extends Collection implements ReaderContract
     /**
      * @inheritDoc
      */
-    public function getCount(): int
-    {
-        return $this->count;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getLastPage(): int
-    {
-        return $this->lastPage;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getOffset(): int
-    {
-        return $this->offset;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getPage(): int
-    {
-        return $this->page;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function getParser(): FileParserContract
     {
         return $this->parser;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getPerPage(): ?int
-    {
-        return $this->perPage;
     }
 
     /**
@@ -229,54 +152,6 @@ abstract class AbstractReader extends Collection implements ReaderContract
     public function getRecords(): ?LaraCollection
     {
         return $this->records;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getTotal(): int
-    {
-        return $this->total;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setCount(int $count): ReaderContract
-    {
-        $this->count = $count;
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setLastPage(int $last_page): ReaderContract
-    {
-        $this->lastPage = $last_page;
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setOffset(int $offset): ReaderContract
-    {
-        $this->offset = $offset;
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setPage(int $page): ReaderContract
-    {
-        $this->page = $page > 0 ? $page : 1;
-
-        return $this;
     }
 
     /**
@@ -314,16 +189,6 @@ abstract class AbstractReader extends Collection implements ReaderContract
     /**
      * @inheritDoc
      */
-    public function setPerPage(?int $per_page = null): ReaderContract
-    {
-        $this->perPage = $per_page > 0 ? $per_page : null;
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function setParser(FileParserContract $parser): ReaderContract
     {
         $this->parser = $parser;
@@ -341,16 +206,6 @@ abstract class AbstractReader extends Collection implements ReaderContract
         } elseif (is_string($primary)) {
             $this->primary = $primary;
         }
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setTotal(int $total): ReaderContract
-    {
-        $this->total = $total;
 
         return $this;
     }

@@ -5,8 +5,12 @@ namespace tiFy\Plugins\Parser\Template\FileListTable;
 use Exception;
 use SplFileInfo;
 use Symfony\Component\Finder\Finder;
+use tiFy\Plugins\Parser\{
+    Contracts\Reader as ReaderContract,
+    Exceptions\ReaderException,
+    Reader,
+    Template\FileListTable\Contracts\Source as SourceContract};
 use tiFy\Support\ParamsBag;
-use tiFy\Plugins\Parser\Template\FileListTable\Contracts\Source as SourceContract;
 use tiFy\Template\Factory\FactoryAwareTrait;
 
 class Source extends ParamsBag implements SourceContract
@@ -38,11 +42,47 @@ class Source extends ParamsBag implements SourceContract
     protected $ready = false;
 
     /**
+     * Instance du gestionnaire de récupération des enregistrements.
+     * @var ReaderContract|null
+     */
+    protected $reader;
+
+    /**
      * @inheritDoc
      */
     public function __toString(): string
     {
         return $this->getFilename();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function fetch(): SourceContract
+    {
+        if (!$this->ready) {
+            if ($dir = $this->get('dir')) {
+                $finder = new Finder();
+
+                try {
+                    $finder->files()->depth('== 0')->in($dir)->reverseSorting()->sortByModifiedTime();
+                    if ($finder->hasResults()) {
+                        $this->files = iterator_to_array($finder);
+                        $this->current = current($this->files);
+                    }
+                } catch (Exception $e) {
+                    $this->current = null;
+                }
+            } elseif ($filename = $this->get('filename')) {
+                $this->current = new SplFileInfo($filename);
+            }
+
+            $this->setReader();
+
+            $this->ready = true;
+        }
+
+        return $this;
     }
 
     /**
@@ -69,30 +109,27 @@ class Source extends ParamsBag implements SourceContract
         return $this->files;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function reader(): ?ReaderContract
+    {
+        return $this->reader;
+    }
 
     /**
      * @inheritDoc
      */
-    public function fetch(): SourceContract
+    public function setReader(?ReaderContract $reader = null): SourceContract
     {
-        if (!$this->ready) {
-            if ($dir = $this->get('dir')) {
-                $finder = new Finder();
-
-                try {
-                    $finder->files()->depth('== 0')->in($dir)->reverseSorting()->sortByModifiedTime();
-                    if ($finder->hasResults()) {
-                        $this->files = iterator_to_array($finder);
-                        $this->current = current($this->files);
-                    }
-                } catch (Exception $e) {
-                    $this->current = null;
-                }
-            } elseif ($filename = $this->get('filename')) {
-                $this->current = new SplFileInfo($filename);
+        if (is_null($reader) && $this->getCurrent())  {
+            try {
+                $reader = Reader::createFromPath($this->getFilename());
+            } catch (ReaderException $e) {
+                $this->factory->label(['no_item' => $e->getMessage()]);
             }
-            $this->ready = true;
         }
+        $this->reader = $reader;
 
         return $this;
     }
