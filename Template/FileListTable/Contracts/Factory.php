@@ -6,10 +6,10 @@ use tiFy\Contracts\Template\FactoryBuilder;
 use tiFy\Template\Templates\ListTable\{
     Contracts\Builder,
     Contracts\DbBuilder,
-    Contracts\ListTable as BaseListTable
+    Contracts\Factory as BaseFactory
 };
 
-interface FileListTable extends BaseListTable
+interface Factory extends BaseFactory
 {
     /**
      * {@inheritDoc}

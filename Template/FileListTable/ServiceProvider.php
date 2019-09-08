@@ -6,14 +6,17 @@ use tiFy\Plugins\Parser\Template\FileListTable\{
     Contracts\FileBuilder,
     Contracts\Source
 };
-use tiFy\Template\Templates\ListTable\Contracts\{Builder, DbBuilder};
-use tiFy\Template\Templates\ListTable\ListTableServiceProvider as BaseListTableServiceProvider;
+use tiFy\Template\Templates\ListTable\{
+    Contracts\Builder as BaseBuilderContract,
+    Contracts\DbBuilder as BaseDbBuilderContract,
+    ServiceProvider as BaseServiceProvider
+};
 
-class FileListTableServiceProvider extends BaseListTableServiceProvider
+class ServiceProvider extends BaseServiceProvider
 {
     /**
      * Instance du gabarit d'affichage.
-     * @var FileListTable
+     * @var Factory
      */
     protected $factory;
 
@@ -23,7 +26,6 @@ class FileListTableServiceProvider extends BaseListTableServiceProvider
     public function registerFactories(): void
     {
         parent::registerFactories();
-        $this->registerFactoryBuilder();
         $this->registerFactorySource();
     }
 
@@ -33,20 +35,20 @@ class FileListTableServiceProvider extends BaseListTableServiceProvider
     public function registerFactoryBuilder(): void
     {
         $this->getContainer()->share($this->getFactoryAlias('builder'), function () {
-            $ctrl = $this->factory->get('providers.builder');
+            $ctrl = $this->factory->provider('builder');
 
             if ($source = $this->factory->param('source', [])) {
                 $ctrl = $ctrl instanceof FileBuilder
                     ? clone $ctrl
                     : $this->getContainer()->get(FileBuilder::class);
             } elseif ($this->factory->db()) {
-                $ctrl = $ctrl instanceof DbBuilder
+                $ctrl = $ctrl instanceof BaseDbBuilderContract
                     ? clone $ctrl
-                    : $this->getContainer()->get(DbBuilder::class);
+                    : $this->getContainer()->get(BaseDbBuilderContract::class);
             } else {
-                $ctrl = $ctrl instanceof Builder
+                $ctrl = $ctrl instanceof BaseBuilderContract
                     ? clone $ctrl
-                    : $this->getContainer()->get(Builder::class);
+                    : $this->getContainer()->get(BaseBuilderContract::class);
             }
 
             $attrs = $this->factory->param('query_args', []);
@@ -62,14 +64,14 @@ class FileListTableServiceProvider extends BaseListTableServiceProvider
      */
     public function registerFactorySource(): void
     {
-        $this->getContainer()->share($this->getFactoryAlias('source'), function () {
-            $ctrl = $this->factory->get('providers.source');
+        $this->getContainer()->share($this->getFactoryAlias('source'), function (): Source {
+            $ctrl = $this->factory->provider('source');
 
             if (!$attrs = $this->factory->param('source', [])) {
                 return null;
             } else {
                 $ctrl = $ctrl instanceof Source
-                    ? $ctrl
+                    ? clone $ctrl
                     : $this->getContainer()->get(Source::class);
             }
 

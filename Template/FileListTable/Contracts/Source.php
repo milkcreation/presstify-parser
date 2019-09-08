@@ -52,7 +52,7 @@ interface Source extends FactoryAwareTrait, ParamsBag
      *
      * @param Reader|null $reader
      *
-     * @return Reader
+     * @return static
      */
     public function setReader(?Reader $reader = null): Source;
 }

@@ -19,7 +19,7 @@ class Source extends ParamsBag implements SourceContract
 
     /**
      * Instance du gabarit d'affichage.
-     * @var FileListTable
+     * @var Factory
      */
     protected $factory;
 
