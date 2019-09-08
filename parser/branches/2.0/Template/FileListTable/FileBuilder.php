@@ -3,45 +3,43 @@
 namespace tiFy\Plugins\Parser\Template\FileListTable;
 
 use tiFy\Plugins\Parser\Template\FileListTable\Contracts\FileBuilder as FileBuilderContract;
-use tiFy\Template\Factory\FactoryAwareTrait;
 use tiFy\Template\Templates\ListTable\{
     Builder as BaseBuilder,
     Contracts\Builder as BaseBuilderContract,
-    Contracts\Item
+    Contracts\Item as BaseItem
 };
 
 class FileBuilder extends BaseBuilder implements FileBuilderContract
 {
-    use FactoryAwareTrait;
-
     /**
      * Instance du gabarit d'affichage.
-     * @var FileListTable
+     * @var Factory
      */
     protected $factory;
 
     /**
      * @inheritDoc
      */
-    public function getItem(string $key): ?Item
+    public function getItem(string $key): ?BaseItem
     {
-        $this->parse();
-
-        if ($source = $this->factory->source()) {
-            $source->fetch();
-
-            if ($reader = $source->reader()) {
-                $reader
-                    ->setPerPage(null)
-                    ->fetch();
-
-                $this->factory->items()->clear()->set(array_values($reader->getRecords()->all()));
-
-                return $this->factory->items()->collect()->first(function (Item $item) use ($key) {
-                    return $item->getKeyValue() === $key;
-                });
-            }
+        if (($source = $this->factory->source()) && ($reader = $source->fetch()->reader())) {
+           if ($item = $this->factory->items()->collect()->first(function (BaseItem $item) use ($key) {
+               return $item->getKeyValue() === $key;
+           })) {
+                return $item;
+           } else {
+               $offset = 0;
+               if ($record = $reader->getRecords()->first(function ($i, $k) use ($key, &$offset){
+                   $offset = $k;
+                   return $i[$this->factory->items()->primaryKey()] === $key;
+               })) {
+                   return ($item = $this->factory->items()->setItem($record))
+                       ? $item->setOffset($offset)->parse()
+                       : null;
+               }
+           }
         }
+
         return null;
     }
 
@@ -52,28 +50,22 @@ class FileBuilder extends BaseBuilder implements FileBuilderContract
     {
         $this->parse();
 
-        if ($source = $this->factory->source()) {
-            $source->fetch();
+        if (($source = $this->factory->source()) && ($reader = $source->fetch()->reader())) {
+            $reader
+                ->setPage($this->getPage())
+                ->setPerPage($this->getPerPage())
+                ->fetch();
 
-            if ($reader = $source->reader()) {
-                $reader = $this->factory->source()->reader();
+            if ($count = $reader->count()) {
+                $this->factory->items()->set(array_values($reader->all()));
 
-                $reader
-                    ->setPage($this->getPage())
-                    ->setPerPage($this->getPerPage())
-                    ->fetch();
-
-                if ($count = $reader->count()) {
-                    $this->factory->items()->set(array_values($reader->all()));
-
-                    $this->factory->pagination()
-                        ->setCount($count)
-                        ->setPage($reader->getPage())
-                        ->setPerPage($reader->getPerPage())
-                        ->setLastPage($reader->getLastPage())
-                        ->setTotal($reader->getTotal())
-                        ->parse();
-                }
+                $this->factory->pagination()
+                    ->setCount($count)
+                    ->setPage($reader->getPage())
+                    ->setPerPage($reader->getPerPage())
+                    ->setLastPage($reader->getLastPage())
+                    ->setTotal($reader->getTotal())
+                    ->parse();
             }
         }
 
