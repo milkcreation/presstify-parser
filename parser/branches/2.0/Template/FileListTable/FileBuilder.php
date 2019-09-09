@@ -57,7 +57,7 @@ class FileBuilder extends BaseBuilder implements FileBuilderContract
                 ->fetch();
 
             if ($count = $reader->count()) {
-                $this->factory->items()->set(array_values($reader->all()));
+                $this->factory->items()->set($reader->all());
 
                 $this->factory->pagination()
                     ->setCount($count)
