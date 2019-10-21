@@ -227,7 +227,7 @@ class CsvWriter implements CsvWriterContract
     public function setErrors(array $errors = []): CsvWriterContract
     {
         if (!isset($errors['_checker'])) {
-            $errors['_checker'] = __('Nombre de colonnes invalide pour l\'enregistrement %s.', 'theme');
+            $errors['_checker'] = __('Nombre de colonnes invalide pour l\'enregistrement %s.', 'tify');
         }
         $this->errors = $errors;
 

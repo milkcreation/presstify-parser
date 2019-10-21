@@ -63,13 +63,13 @@ class Reader extends AbstractReader implements ReaderContract
     public static function createFromPath(string $path, array $params = [], ...$args): ReaderContract
     {
         if (!file_exists($path)) {
-            throw new ReaderException(__('Le fichier n\'est pas accessible.', 'theme'));
+            throw new ReaderException(__('Le fichier n\'est pas accessible.', 'tify'));
         }
 
         try {
             switch ($ext = pathinfo($path, PATHINFO_EXTENSION)) {
                 default:
-                    throw new ReaderException(__('Le type de fichier n\'est pas pris en charge.', 'theme'));
+                    throw new ReaderException(__('Le type de fichier n\'est pas pris en charge.', 'tify'));
                     break;
                 case 'csv' :
                     return CsvReader::createFromPath($path, $params, ...$args);
@@ -85,7 +85,7 @@ class Reader extends AbstractReader implements ReaderContract
                     break;
             }
         } catch (Exception $e) {
-            throw new ReaderException(__('Impossible de lire le fichier.', 'theme'));
+            throw new ReaderException(__('Impossible de lire le fichier.', 'tify'));
         }
     }
 }
