@@ -1,0 +1,4 @@
+[1970-01-01 00:00:00] members-import.NOTICE: "Freddie Mercury" importé avec succès. {"firstname":"Freddie","lastname":"Mercury","email":"fmercury@sample.com"} []
+[1970-01-01 00:00:01] members-import.NOTICE: "Brian May" importé avec succès. {"firstname":"Brian","lastname":"May","email":"bmay@sample.com"} []
+[1970-01-01 00:00:02] members-import.NOTICE: "Roger Taylor" importé avec succès. {"firstname":"Roger","lastname":"Taylor","email":"rtaylor@sample.com"} []
+[1970-01-01 00:00:03] members-import.NOTICE: "John Deacon" importé avec succès. {"firstname":"John",lastname":"Deacon","email":"jdeacon@sample.com"} []
