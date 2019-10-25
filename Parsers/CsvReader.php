@@ -72,6 +72,8 @@ class CsvReader extends AbstractReader implements CsvReaderContract
      * {@inheritDoc}
      *
      * @return CsvReaderContract
+     *
+     * @throws Exception
      */
     public static function createFromPath(string $path, array $params = [], ...$args): BaseReaderContract
     {

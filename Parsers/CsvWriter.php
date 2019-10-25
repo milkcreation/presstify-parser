@@ -153,6 +153,8 @@ class CsvWriter implements CsvWriterContract
 
     /**
      * @inheritDoc
+     *
+     * @throws Exception
      */
     public static function createFromPath(?string $path = null, array $params = [], ...$args): CsvWriterContract
     {
