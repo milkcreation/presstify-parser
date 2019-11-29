@@ -62,10 +62,6 @@ class Reader extends AbstractReader implements ReaderContract
      */
     public static function createFromPath(string $path, array $params = [], ...$args): ReaderContract
     {
-        if (!file_exists($path)) {
-            throw new ReaderException(__('Le fichier n\'est pas accessible.', 'tify'));
-        }
-
         try {
             switch ($ext = pathinfo($path, PATHINFO_EXTENSION)) {
                 default:
