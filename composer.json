@@ -1,0 +1,53 @@
+{
+  "name": "presstify-plugins/parser",
+  "description": "Extension PresstiFy de traitement, conversion et écriture de données au format CSV,Excel,JSON,XML.",
+  "type": "presstify-plugin",
+  "keywords": [
+    "presstify",
+    "plugins",
+    "csv",
+    "excel",
+    "xls",
+    "xlsx",
+    "json",
+    "xml"
+  ],
+  "homepage": "https://svn.tigreblanc.fr/presstify-plugins/parser",
+  "time": "2020-02-04",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Jordy Manner",
+      "email": "jordy.manner@milkcreation.fr",
+      "role": "Developper"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://composer.tigreblanc.fr/presstify"
+    }
+  ],
+  "require": {
+    "composer/installers": "~1.0",
+    "ext-xmlreader": "*",
+    "faisalman/simple-excel-php": "0.3.*",
+    "league/csv": "^9.0",
+    "league/fractal": "^0.18",
+    "maxakawizard/json-collection-parser": "1.5.*",
+    "presstify/framework": ">=1.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "tiFy\\Plugins\\Parser\\": ""
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "secure-http": true,
+    "sort-packages": true
+  }
+}
