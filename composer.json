@@ -13,7 +13,7 @@
     "xml"
   ],
   "homepage": "https://svn.tigreblanc.fr/presstify-plugins/parser",
-  "time": "2020-02-04",
+  "time": "2020-02-07",
   "license": "proprietary",
   "authors": [
     {
@@ -47,7 +47,6 @@
   "config": {
     "optimize-autoloader": true,
     "preferred-install": "dist",
-    "secure-http": true,
     "sort-packages": true
   }
 }
