@@ -52,7 +52,7 @@ class FileBuilder extends BaseBuilder implements FileBuilderContract
 
         if (($source = $this->factory->source()) && ($reader = $source->fetch()->reader())) {
             $reader
-                ->setPage($this->getPage())
+                ->setCurrentPage($this->getPage())
                 ->setPerPage($this->getPerPage())
                 ->fetch();
 
@@ -61,7 +61,7 @@ class FileBuilder extends BaseBuilder implements FileBuilderContract
 
                 $this->factory->pagination()
                     ->setCount($count)
-                    ->setPage($reader->getPage())
+                    ->setCurrentPage($reader->getCurrentPage())
                     ->setPerPage($reader->getPerPage())
                     ->setLastPage($reader->getLastPage())
                     ->setTotal($reader->getTotal())
