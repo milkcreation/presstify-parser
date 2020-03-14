@@ -71,7 +71,7 @@ abstract class AbstractReader extends Collection implements ReaderContract
         $this->items = [];
 
         $per_page = $this->getPerPage();
-        $page = $this->getPage();
+        $page = $this->getCurrentPage();
         $total = $this->getTotal();
         $offset = $this->getOffset();
         $records = clone $this->getRecords();
@@ -96,7 +96,7 @@ abstract class AbstractReader extends Collection implements ReaderContract
     public function fetchForPage(int $page = 1): ReaderContract
     {
         if ($this->page !== $page) {
-            $this->setPage($page > 0 ? $page : 1);
+            $this->setCurrentPage($page > 0 ? $page : 1);
             $this->fetch();
         }
 
@@ -165,7 +165,7 @@ abstract class AbstractReader extends Collection implements ReaderContract
                     $this->setOffset($param);
                     break;
                 case 'page' :
-                    $this->setPage($param);
+                    $this->setCurrentPage($param);
                     break;
                 case 'per_page' :
                     $this->setPerPage($param);
