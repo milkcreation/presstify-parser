@@ -17,60 +17,60 @@ use tiFy\Plugins\Parser\{
 
 /**
  *  USAGE :
- *
- * use tiFy\Plugins\Parser\Csv\Writer
- *
- * $csv = Writer::createFromPath('/example.csv', [
- *      'checker'       => 2,
- *      'delimiter'     => ',',
- *      'enclosure'     => '"',
- *      'escape'        => '\\',
- *      'errors'        => [
- *          'not_empty' => 'Toutes les valeurs n\'ont pas été renseignée dans l\'enregistrement : %s'
- *      ],
- *      'formatters' => [
- *          function (array $row) {
- *              return array_map('ucfirst', array_map('strtolower', $row));
- *          }
- *      ],
- *      'validators' => [
- *          'not_empty' => function (array $row) {
- *              foreach ($row as $value) {
- *                  if (empty($value)) {
- *                      return false;
- *                  }
- *              }
- *              return true;
- *          }
- *      ]
- * ], 'a+');
- *
- * - path : Le chemin vers le fichier csv, mettre à null pour traiter la création du csv en mémoire.
- * - params :
- *      > checker : Permet de forcer à 2, le nombre de cellules par ajout de ligne de données. true|false aussi accepté.
- *      ...
- *      > errors['not_empty'] : Message d'erreur lancé lorsque l'une des lignes de données ajoutées contient une valeur
+ * ---------------------------------------------------------------------------------------------------------------------
+ use tiFy\Plugins\Parser\Parsers\CsvWriter
+
+ // Initialisation
+ * - (string) path : Le chemin vers le fichier csv, mettre à null pour traiter la création du csv en mémoire.
+ * - (array) params :
+ *    > (int) checker : Permet de forcer à 2, le nombre de cellules par ajout de ligne de données. true|false aussi accepté.
+ *    ...
+ *      > (string[]) errors['not_empty'] : Message d'erreur lancé lorsque l'une des lignes de données ajoutées contient une valeur
  *                              vide.
- *      > formatters[0] : Formatte les valeurs des lignes de données ajoutées en mininuscule, a l'exception de la
+ *      > (callable[]) formatters : Formatte les valeurs des lignes de données ajoutées en mininuscule, a l'exception de la
  *                        première lettre.
- *      > validators['not_empty'] : Vérifie qu'aucune valeur de lignes de données ne soit vide
- * - mode : 'a+' > mode d'écriture inclusif. @see https://www.php.net/manual/fr/function.fopen.php
- *
- * // Ajout d'une ligne de données.
- * $csv->addRow(['freDdy', 'merCurY']);
- *
- * // Ajout de plusieurs lignes de données.
- * $csv->addRows([
- *      ['roGer', 'taYlor'],
- *      ['brIAn', 'mAy'],
- *      ['joHN', 'deACon']
- * ]);
- *
- * // Génération de la réponse HTTP.
- * $csv->response('queen-members.csv');
- *
- * // Génération de la réponse HTTP de téléchargement.
- * $csv->download('queen-members.csv');
+ *      > (callable[]) validators['not_empty'] : Vérifie qu'aucune valeur de lignes de données ne soit vide
+ * - (string) mode : 'a+' > mode d'écriture inclusif. @see https://www.php.net/manual/fr/function.fopen.php
+ $csv = CsvWriter::createFromPath('/example.csv', [
+      'checker'       => 2,
+      'delimiter'     => ',',
+      'enclosure'     => '"',
+      'escape'        => '\\',
+      'errors'        => [
+          'not_empty' => 'Toutes les valeurs n\'ont pas été renseignée dans l\'enregistrement : %s'
+      ],
+      'formatters' => [
+          function (array $row) {
+              return array_map('ucfirst', array_map('strtolower', $row));
+          }
+      ],
+      'validators' => [
+          'not_empty' => function (array $row) {
+              foreach ($row as $value) {
+                  if (empty($value)) {
+                      return false;
+                  }
+              }
+              return true;
+          }
+      ]
+ ], 'a+');
+
+ // Ajout d'une ligne de données.
+ $csv->addRow(['freDdy', 'merCurY']);
+
+ // Ajout de plusieurs lignes de données.
+ $csv->addRows([
+      ['roGer', 'taYlor'],
+      ['brIAn', 'mAy'],
+      ['joHN', 'deACon']
+ ]);
+
+ // Génération de la réponse HTTP.
+ $csv->response('queen-members.csv');
+
+ // Génération de la réponse HTTP de téléchargement.
+ $csv->download('queen-members.csv');
  */
 class CsvWriter implements CsvWriterContract
 {
