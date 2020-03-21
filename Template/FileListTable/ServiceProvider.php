@@ -39,15 +39,15 @@ class ServiceProvider extends BaseServiceProvider
 
             if ($source = $this->factory->param('source', [])) {
                 $ctrl = $ctrl instanceof FileBuilder
-                    ? clone $ctrl
+                    ? $ctrl
                     : $this->getContainer()->get(FileBuilder::class);
             } elseif ($this->factory->db()) {
                 $ctrl = $ctrl instanceof BaseDbBuilderContract
-                    ? clone $ctrl
+                    ? $ctrl
                     : $this->getContainer()->get(BaseDbBuilderContract::class);
             } else {
                 $ctrl = $ctrl instanceof BaseBuilderContract
-                    ? clone $ctrl
+                    ? $ctrl
                     : $this->getContainer()->get(BaseBuilderContract::class);
             }
 
@@ -71,7 +71,7 @@ class ServiceProvider extends BaseServiceProvider
                 return null;
             } else {
                 $ctrl = $ctrl instanceof Source
-                    ? clone $ctrl
+                    ? $ctrl
                     : $this->getContainer()->get(Source::class);
             }
 

@@ -16,6 +16,7 @@ use tiFy\Plugins\Parser\{
  * ---------------------------------------------------------------------------------------------------------------------
  use tiFy\Plugins\Parser\Parsers\CsvReader as Reader;
 
+ // Initialisation
  $reader = Reader::createFromPath(
     VENDOR_PATH . '/presstify-plugins/parser/Resources/sample/sample.csv', [
     'delimiter'     => ',',
