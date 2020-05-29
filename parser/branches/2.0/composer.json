@@ -13,7 +13,7 @@
     "xml"
   ],
   "homepage": "https://svn.tigreblanc.fr/presstify-plugins/parser",
-  "time": "2020-03-20",
+  "time": "2020-05-29",
   "license": "proprietary",
   "authors": [
     {
@@ -33,9 +33,10 @@
     "ext-xmlreader": "*",
     "faisalman/simple-excel-php": "0.3.*",
     "league/csv": "^9.0",
-    "league/fractal": "^0.18",
-    "maxakawizard/json-collection-parser": "1.5.*",
-    "presstify/framework": ">=1.4"
+    "league/fractal": "^0.19",
+    "maxakawizard/json-collection-parser": "^1.7",
+    "presstify/framework": ">=1.4",
+    "tightenco/collect": "^7.12"
   },
   "autoload": {
     "psr-4": {
