@@ -2,75 +2,67 @@
 
 namespace tiFy\Plugins\Parser\Parsers;
 
-use League\Csv\{
-    CannotInsertRecord,
-    CharsetConverter,
-    ColumnConsistency,
-    Exception,
-    Writer as LeagueWriter
-};
+use League\Csv\{CannotInsertRecord, CharsetConverter, ColumnConsistency, Exception, Writer as LeagueWriter};
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use tiFy\Plugins\Parser\{
-    Contracts\CsvWriter as CsvWriterContract,
-    Exceptions\CsvException
-};
+use tiFy\Plugins\Parser\{Contracts\CsvWriter as CsvWriterContract, Exceptions\CsvException};
 
 /**
  *  USAGE :
  * ---------------------------------------------------------------------------------------------------------------------
- use tiFy\Plugins\Parser\Parsers\CsvWriter
-
- // Initialisation
+ * use tiFy\Plugins\Parser\Parsers\CsvWriter
+ *
+ * // Initialisation
  * - (string) path : Le chemin vers le fichier csv, mettre à null pour traiter la création du csv en mémoire.
  * - (array) params :
- *    > (int) checker : Permet de forcer à 2, le nombre de cellules par ajout de ligne de données. true|false aussi accepté.
+ *    > (int) checker : Permet de forcer à 2, le nombre de cellules par ajout de ligne de données. true|false aussi
+ * accepté.
  *    ...
- *      > (string[]) errors['not_empty'] : Message d'erreur lancé lorsque l'une des lignes de données ajoutées contient une valeur
- *                              vide.
- *      > (callable[]) formatters : Formatte les valeurs des lignes de données ajoutées en mininuscule, a l'exception de la
- *                        première lettre.
+ *      > (string[]) errors['not_empty'] : Message d'erreur lancé lorsque l'une des lignes de données ajoutées contient
+ * une valeur vide.
+ *      > (callable[]) formatters : Formatte les valeurs des lignes de données ajoutées en mininuscule, a l'exception
+ * de la première lettre.
  *      > (callable[]) validators['not_empty'] : Vérifie qu'aucune valeur de lignes de données ne soit vide
  * - (string) mode : 'a+' > mode d'écriture inclusif. @see https://www.php.net/manual/fr/function.fopen.php
- $csv = CsvWriter::createFromPath('/example.csv', [
-      'checker'       => 2,
-      'delimiter'     => ',',
-      'enclosure'     => '"',
-      'escape'        => '\\',
-      'errors'        => [
-          'not_empty' => 'Toutes les valeurs n\'ont pas été renseignée dans l\'enregistrement : %s'
-      ],
-      'formatters' => [
-          function (array $row) {
-              return array_map('ucfirst', array_map('strtolower', $row));
-          }
-      ],
-      'validators' => [
-          'not_empty' => function (array $row) {
-              foreach ($row as $value) {
-                  if (empty($value)) {
-                      return false;
-                  }
-              }
-              return true;
-          }
-      ]
- ], 'a+');
-
- // Ajout d'une ligne de données.
- $csv->addRow(['freDdy', 'merCurY']);
-
- // Ajout de plusieurs lignes de données.
- $csv->addRows([
-      ['roGer', 'taYlor'],
-      ['brIAn', 'mAy'],
-      ['joHN', 'deACon']
- ]);
-
- // Génération de la réponse HTTP.
- $csv->response('queen-members.csv');
-
- // Génération de la réponse HTTP de téléchargement.
- $csv->download('queen-members.csv');
+ * $csv = CsvWriter::createFromPath('/example.csv', [
+ * 'checker'       => 2,
+ * 'delimiter'     => ',',
+ * 'enclosure'     => '"',
+ * 'escape'        => '\\',
+ * 'errors'        => [
+ * 'not_empty' => 'Toutes les valeurs n\'ont pas été renseignée dans l\'enregistrement : %s'
+ * ],
+ * 'formatters' => [
+ * function (array $row) {
+ * return array_map('ucfirst', array_map('strtolower', $row));
+ * }
+ * ],
+ * 'validators' => [
+ * 'not_empty' => function (array $row) {
+ * foreach ($row as $value) {
+ * if (empty($value)) {
+ * return false;
+ * }
+ * }
+ * return true;
+ * }
+ * ]
+ * ], 'a+');
+ *
+ * // Ajout d'une ligne de données.
+ * $csv->addRow(['freDdy', 'merCurY']);
+ *
+ * // Ajout de plusieurs lignes de données.
+ * $csv->addRows([
+ * ['roGer', 'taYlor'],
+ * ['brIAn', 'mAy'],
+ * ['joHN', 'deACon']
+ * ]);
+ *
+ * // Génération de la réponse HTTP.
+ * $csv->response('queen-members.csv');
+ *
+ * // Génération de la réponse HTTP de téléchargement.
+ * $csv->download('queen-members.csv');
  */
 class CsvWriter implements CsvWriterContract
 {
@@ -314,25 +306,27 @@ class CsvWriter implements CsvWriterContract
         array $headers = [],
         string $disposition = 'inline'
     ): StreamedResponse {
-        $response = new StreamedResponse();
-        $disposition = $response->headers->makeDisposition($disposition, $name);
-        $response->headers->replace($headers + [
-                'Content-Encoding'    => 'none',
-                'Content-Type'        => 'text/csv; charset=UTF-8',
-                'Content-Disposition' => $disposition,
-                'Content-Description' => 'File Transfer'
-            ]);
+        $response = new StreamedResponse(function () {
+            $flush_threshold = $this->getWriter()->getFlushThreshold() ?: 1000;
 
-        $flush_threshold = $this->getWriter()->getFlushThreshold() ?: 1000;
-        $response->setCallback(function () use ($flush_threshold) {
             foreach ($this->getWriter()->chunk(1024) as $offset => $chunk) {
                 echo $chunk;
+
                 if ($offset % $flush_threshold === 0) {
                     flush();
                 }
             }
         });
 
-        return $response;
+        $disposition = $response->headers->makeDisposition($disposition, $name);
+
+        $response->headers->replace(array_merge($headers, [
+            'Content-Encoding'    => 'none',
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => $disposition,
+            'Content-Description' => 'File Transfer',
+        ]));
+
+        return $response->send();
     }
 }
