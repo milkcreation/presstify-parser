@@ -27,7 +27,11 @@ class XmlFileParser extends FileParser implements XmlFileParserContract
 
                 return $self->map(function ($value) {
                     if ($value instanceof TightencoCollection) {
-                        return $value->recursiveToArray()->all() ? : null;
+                        if ($value = $value->recursiveToArray()->all()) {
+                            return is_array($value) && (count($value) === 1) ? reset($value) : $value;
+                        }
+
+                        return null;
                     }
 
                     return $value;
