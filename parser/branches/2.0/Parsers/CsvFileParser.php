@@ -66,9 +66,14 @@ class CsvFileParser extends FileParser implements CsvFileParserContract
 
             LeagueCsvCharsetConverter::addTo($adapter, $this->encoding[0], $this->encoding[1]);
 
-            $header = $this->header !== false
-                ? $adapter->setHeaderOffset(is_int($this->header) ? $this->header :0)->getHeader()
-                : [];
+            $header = [];
+            if ($this->header !== false) {
+                if (is_int($this->header)) {
+                    $header = $adapter->setHeaderOffset($this->header ?:0)->getHeader();
+                } elseif(is_array($this->header)) {
+                    $header = $this->header;
+                }
+            }
 
             $results = (new LeagueCsvStatement())->process($adapter, $header);
 
@@ -125,7 +130,7 @@ class CsvFileParser extends FileParser implements CsvFileParserContract
      */
     public function setHeader($header): CsvFileParserContract
     {
-        $this->header = is_int($header) ? $header : 0;
+        $this->header = $header;
 
         return $this;
     }
