@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace tiFy\Plugins\Parser\Parsers;
+namespace tiFy\Plugins\Parser\Driver;
 
 use Exception;
 use tiFy\Plugins\Parser\{
@@ -14,7 +14,7 @@ use tiFy\Plugins\Parser\{
 /**
  * USAGE :
  * ---------------------------------------------------------------------------------------------------------------------
- use tiFy\Plugins\Parser\Parsers\CsvReader as Reader;
+ use tiFy\Plugins\Parser\Driver\CsvReader as Reader;
 
  // Initialisation
  $reader = Reader::createFromPath(
@@ -30,7 +30,7 @@ use tiFy\Plugins\Parser\{
  ]);
 
  // Lancement de la récupération des éléments.
- // @var \tiFy\Plugins\Parser\Parsers\CsvReader
+ // @var \tiFy\Plugins\Parser\Driver\CsvReader
  $reader->fetch();
 
  // Récupération de la liste des complète des enregistrements.

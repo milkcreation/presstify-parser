@@ -205,6 +205,8 @@ abstract class AbstractReader extends Collection implements ReaderContract
             $this->primary = intval($primary);
         } elseif (is_string($primary)) {
             $this->primary = $primary;
+        } else {
+            $this->primary = $primary;
         }
 
         return $this;

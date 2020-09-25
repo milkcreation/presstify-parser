@@ -6,10 +6,10 @@ use Exception;
 use tiFy\Plugins\Parser\{
     Contracts\Reader as ReaderContract,
     Exceptions\ReaderException,
-    Parsers\CsvReader,
-    Parsers\JsonReader,
-    Parsers\LogReader,
-    Parsers\XmlReader
+    Driver\CsvReader,
+    Driver\JsonReader,
+    Driver\LogReader,
+    Driver\XmlReader
 };
 
 /**

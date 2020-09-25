@@ -1,30 +1,30 @@
 <?php declare(strict_types=1);
 
-namespace tiFy\Plugins\Parser\Parsers;
+namespace tiFy\Plugins\Parser\Driver;
 
 use tiFy\Plugins\Parser\{
     AbstractReader,
+    Contracts\JsonFileParser as JsonFileParserContract,
     Contracts\FileParser as FileParserContract,
-    Contracts\XmlFileParser as XmlFileParserContract,
-    Contracts\XmlReader as XmlReaderContract,
+    Contracts\JsonReader as JsonReaderContract,
     Contracts\Reader as BaseReaderContract
 };
 
 /**
  * USAGE :
  * ---------------------------------------------------------------------------------------------------------------------
- use tiFy\Plugins\Parser\Parsers\XmlReader as Reader;
+ use tiFy\Plugins\Parser\Driver\JsonReader as Reader;
 
  $reader = Reader::createFromPath(
-    VENDOR_PATH . '/presstify-plugins/parser/Resources/sample/sample.xml', [
-   'offset'        => 1,
-   'primary'       => 'lastname',
-   'page'          => 1,
-   'per_page'      => -1
+    VENDOR_PATH . '/presstify-plugins/parser/Resources/sample/sample.json', [
+    'offset'        => 1,
+    'primary'       => 'lastname',
+    'page'          => 1,
+    'per_page'      => -1
  ]);
 
  // Lancement de la récupération des éléments.
- // @var \tiFy\Plugins\Parser\Parsers\XmlReader
+ // @var \tiFy\Plugins\Parser\Driver\JsonReader
  $reader->fetch();
 
  // Récupération du tableau de la liste des éléments courants.
@@ -51,12 +51,12 @@ use tiFy\Plugins\Parser\{
  // @var int
  $reader->getCount();
  */
-class XmlReader extends AbstractReader implements XmlReaderContract
+class JsonReader extends AbstractReader implements JsonReaderContract
 {
     /**
      * {@inheritDoc}
      *
-     * @return XmlFileParserContract
+     * @return JsonFileParserContract
      */
     public function getParser(): FileParserContract
     {
@@ -66,10 +66,10 @@ class XmlReader extends AbstractReader implements XmlReaderContract
     /**
      * {@inheritDoc}
      *
-     * @return XmlFileParserContract
+     * @return JsonReaderContract
      */
     public static function createFromPath(string $path, array $params = [], ...$args): BaseReaderContract
     {
-        return (new static((new XmlFileParser($args))->setSource($path)))->setParams($params);
+        return (new static((new JsonFileParser($args))->setSource($path)))->setParams($params);
     }
 }
