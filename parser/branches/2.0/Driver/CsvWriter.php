@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace tiFy\Plugins\Parser\Parsers;
+namespace tiFy\Plugins\Parser\Driver;
 
 use League\Csv\{CannotInsertRecord, CharsetConverter, ColumnConsistency, Exception, Writer as LeagueWriter};
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -9,7 +9,7 @@ use tiFy\Plugins\Parser\{Contracts\CsvWriter as CsvWriterContract, Exceptions\Cs
 /**
  *  USAGE :
  * ---------------------------------------------------------------------------------------------------------------------
- * use tiFy\Plugins\Parser\Parsers\CsvWriter
+ * use tiFy\Plugins\Parser\Driver\CsvWriter
  *
  * // Initialisation
  * - (string) path : Le chemin vers le fichier csv, mettre à null pour traiter la création du csv en mémoire.

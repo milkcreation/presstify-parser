@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace tiFy\Plugins\Parser\Parsers;
+namespace tiFy\Plugins\Parser\Driver;
 
 use Exception;
 use tiFy\Plugins\Parser\{

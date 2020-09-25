@@ -1,30 +1,30 @@
 <?php declare(strict_types=1);
 
-namespace tiFy\Plugins\Parser\Parsers;
+namespace tiFy\Plugins\Parser\Driver;
 
 use tiFy\Plugins\Parser\{
     AbstractReader,
     Contracts\FileParser as FileParserContract,
-    Contracts\LogFileParser as LogFileParserContract,
-    Contracts\LogReader as LogReaderContract,
+    Contracts\XmlFileParser as XmlFileParserContract,
+    Contracts\XmlReader as XmlReaderContract,
     Contracts\Reader as BaseReaderContract
 };
 
 /**
  * USAGE :
  * ---------------------------------------------------------------------------------------------------------------------
- use tiFy\Plugins\Parser\Parsers\LogReader as Reader;
+ use tiFy\Plugins\Parser\Driver\XmlReader as Reader;
 
  $reader = Reader::createFromPath(
-    VENDOR_PATH . '/presstify-plugins/parser/Resources/sample/sample.log', [
-    'offset'        => 1,
-    'primary'       => 'lastname',
-    'page'          => 1,
-    'per_page'      => -1
+    VENDOR_PATH . '/presstify-plugins/parser/Resources/sample/sample.xml', [
+   'offset'        => 1,
+   'primary'       => 'lastname',
+   'page'          => 1,
+   'per_page'      => -1
  ]);
 
  // Lancement de la récupération des éléments.
- // @var \tiFy\Plugins\Parser\Parsers\LogReader
+ // @var \tiFy\Plugins\Parser\Driver\XmlReader
  $reader->fetch();
 
  // Récupération du tableau de la liste des éléments courants.
@@ -51,12 +51,12 @@ use tiFy\Plugins\Parser\{
  // @var int
  $reader->getCount();
  */
-class LogReader extends AbstractReader implements LogReaderContract
+class XmlReader extends AbstractReader implements XmlReaderContract
 {
     /**
      * {@inheritDoc}
      *
-     * @return LogFileParserContract
+     * @return XmlFileParserContract
      */
     public function getParser(): FileParserContract
     {
@@ -66,10 +66,10 @@ class LogReader extends AbstractReader implements LogReaderContract
     /**
      * {@inheritDoc}
      *
-     * @return LogReaderContract
+     * @return XmlFileParserContract
      */
     public static function createFromPath(string $path, array $params = [], ...$args): BaseReaderContract
     {
-        return (new static((new LogFileParser($args))->setSource($path)))->setParams($params);
+        return (new static((new XmlFileParser($args))->setSource($path)))->setParams($params);
     }
 }

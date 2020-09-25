@@ -1,22 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace tiFy\Plugins\Parser\Parsers;
+namespace tiFy\Plugins\Parser\Driver;
 
 use tiFy\Plugins\Parser\{
     AbstractReader,
-    Contracts\JsonFileParser as JsonFileParserContract,
     Contracts\FileParser as FileParserContract,
-    Contracts\JsonReader as JsonReaderContract,
+    Contracts\LogFileParser as LogFileParserContract,
+    Contracts\LogReader as LogReaderContract,
     Contracts\Reader as BaseReaderContract
 };
 
 /**
  * USAGE :
  * ---------------------------------------------------------------------------------------------------------------------
- use tiFy\Plugins\Parser\Parsers\JsonReader as Reader;
+ use tiFy\Plugins\Parser\Driver\LogReader as Reader;
 
  $reader = Reader::createFromPath(
-    VENDOR_PATH . '/presstify-plugins/parser/Resources/sample/sample.json', [
+    VENDOR_PATH . '/presstify-plugins/parser/Resources/sample/sample.log', [
     'offset'        => 1,
     'primary'       => 'lastname',
     'page'          => 1,
@@ -24,7 +24,7 @@ use tiFy\Plugins\Parser\{
  ]);
 
  // Lancement de la récupération des éléments.
- // @var \tiFy\Plugins\Parser\Parsers\JsonReader
+ // @var \tiFy\Plugins\Parser\Driver\LogReader
  $reader->fetch();
 
  // Récupération du tableau de la liste des éléments courants.
@@ -51,12 +51,12 @@ use tiFy\Plugins\Parser\{
  // @var int
  $reader->getCount();
  */
-class JsonReader extends AbstractReader implements JsonReaderContract
+class LogReader extends AbstractReader implements LogReaderContract
 {
     /**
      * {@inheritDoc}
      *
-     * @return JsonFileParserContract
+     * @return LogFileParserContract
      */
     public function getParser(): FileParserContract
     {
@@ -66,10 +66,10 @@ class JsonReader extends AbstractReader implements JsonReaderContract
     /**
      * {@inheritDoc}
      *
-     * @return JsonReaderContract
+     * @return LogReaderContract
      */
     public static function createFromPath(string $path, array $params = [], ...$args): BaseReaderContract
     {
-        return (new static((new JsonFileParser($args))->setSource($path)))->setParams($params);
+        return (new static((new LogFileParser($args))->setSource($path)))->setParams($params);
     }
 }
