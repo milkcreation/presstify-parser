@@ -9,7 +9,7 @@ use tiFy\Support\Manager;
  * @desc Extension PresstiFy de traitement, conversion et écriture de données au format CSV,Excel,JSON,LOG,XML.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\Parser
- * @version 2.0.26
+ * @version 2.0.27
  *
  * USAGE :
  * Activation
