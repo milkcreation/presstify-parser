@@ -21,14 +21,9 @@ class JsonFileParser extends FileParser implements JsonFileParserContract
         try {
             $this->stream = $this->open();
 
-           (new StreamingParser(
-               $this->stream,
-               new Listener(function(array $item) {
-                   $this->records[] = $item;
-               },
-               true
-               )
-           ))->parse();
+           (new StreamingParser($this->stream, new Listener(function(array $item) {
+               $this->records[] = $item;
+           }, true)))->parse();
         } catch (Exception $e) {
             throw $e;
         }

@@ -3,13 +3,12 @@
 namespace tiFy\Plugins\Parser\Driver;
 
 use Exception;
-use Rodenastyle\StreamParser\Parsers\XMLParser;
 use tiFy\Plugins\Parser\{
     Contracts\FileParser as FileParserContract,
     Contracts\JsonFileParser as XmlFileParserContract,
     FileParser
 };
-use Tightenco\Collect\Support\Collection as TightencoCollection;
+use SimpleXMLElement;
 
 class XmlFileParser extends FileParser implements XmlFileParserContract
 {
@@ -21,26 +20,7 @@ class XmlFileParser extends FileParser implements XmlFileParserContract
         try {
             $this->stream = $this->open();
 
-            TightencoCollection::macro('recursiveToArray', function () {
-                /** @var TightencoCollection $self */
-                $self = $this;
-
-                return $self->map(function ($value) {
-                    if ($value instanceof TightencoCollection) {
-                        if ($value = $value->recursiveToArray()->all()) {
-                            return is_array($value) && (count($value) === 1) ? reset($value) : $value;
-                        }
-
-                        return null;
-                    }
-
-                    return $value;
-                });
-            });
-
-            (new XMLParser())->from($this->source)->each(function (TightencoCollection $item) use (&$records) {
-                $this->records[] = $item->recursiveToArray()->all();
-            });
+            $this->records = $this->xmlToArray(simplexml_load_string(file_get_contents($this->source)));
         } catch (Exception $e) {
             throw $e;
         }
@@ -50,5 +30,37 @@ class XmlFileParser extends FileParser implements XmlFileParserContract
         }
 
         return $this;
+    }
+
+    public function xmlToArray(SimpleXMLElement $xml): array
+    {
+        $parser = function (SimpleXMLElement $xml, array $collection = []) use (&$parser) {
+            $nodes = $xml->children();
+            $attributes = $xml->attributes();
+
+            if (0 !== count($attributes)) {
+                foreach ($attributes as $attrName => $attrValue) {
+                    $collection[$attrName] = strval($attrValue);
+                }
+            }
+
+            if (0 === $nodes->count()) {
+                $collection = strval($xml);
+                return $collection;
+            }
+
+            foreach ($nodes as $nodeName => $nodeValue) {
+                if (count($nodeValue->xpath('../' . $nodeName)) < 2) {
+                    $collection[$nodeName] = $parser($nodeValue);
+                    continue;
+                }
+
+                $collection[] = $parser($nodeValue);
+            }
+
+            return $collection;
+        };
+
+        return $parser($xml);
     }
 }

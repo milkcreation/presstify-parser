@@ -1,5 +1,11 @@
 # Release Notes
 
+## [v2.0.28 (2020-11-10)](https://svn.tigreblanc.fr/presstify-plugins/parser/tags/2.0.28...v2.0.28)
+
+### Changed
+
+- `Driver/XmlFileParser.php` : Modification de l'algorithme de traitement XLM basé sur SimpleXMLElement
+
 ## [v2.0.27 (2020-11-05)](https://svn.tigreblanc.fr/presstify-plugins/parser/tags/2.0.27...v2.0.27)
 
 ### Changed
