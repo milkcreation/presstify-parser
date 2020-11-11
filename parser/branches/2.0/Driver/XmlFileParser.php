@@ -3,11 +3,10 @@
 namespace tiFy\Plugins\Parser\Driver;
 
 use Exception;
-use tiFy\Plugins\Parser\{
-    Contracts\FileParser as FileParserContract,
-    Contracts\JsonFileParser as XmlFileParserContract,
-    FileParser
-};
+use tiFy\Plugins\Parser\Lib\Xml2Assoc;
+use tiFy\Plugins\Parser\Contracts\FileParser as FileParserContract;
+use tiFy\Plugins\Parser\Contracts\JsonFileParser as XmlFileParserContract;
+use tiFy\Plugins\Parser\FileParser;
 use SimpleXMLElement;
 
 class XmlFileParser extends FileParser implements XmlFileParserContract
@@ -20,7 +19,21 @@ class XmlFileParser extends FileParser implements XmlFileParserContract
         try {
             $this->stream = $this->open();
 
-            $this->records = $this->xmlToArray(simplexml_load_string(file_get_contents($this->source)));
+            /* */
+            $xml = (new Xml2Assoc())->parseFile($this->source, true);
+            $xml = reset($xml);
+            $this->records = $xml;
+            /**/
+
+            /*  * /
+             $xml = json_decode(json_encode(simplexml_load_file($this->source)), true);
+             $xml = reset($xml);
+             $this->records = $xml;
+             /**/
+
+             /* * /
+             $this->records = $this->xmlToArray(simplexml_load_string(file_get_contents($this->source)));
+             /**/
         } catch (Exception $e) {
             throw $e;
         }
@@ -32,6 +45,7 @@ class XmlFileParser extends FileParser implements XmlFileParserContract
         return $this;
     }
 
+    /*
     public function xmlToArray(SimpleXMLElement $xml): array
     {
         $parser = function (SimpleXMLElement $xml, array $collection = []) use (&$parser) {
@@ -63,4 +77,5 @@ class XmlFileParser extends FileParser implements XmlFileParserContract
 
         return $parser($xml);
     }
+    */
 }

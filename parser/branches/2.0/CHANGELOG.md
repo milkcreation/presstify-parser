@@ -1,5 +1,16 @@
 # Release Notes
 
+## [v2.0.29 (2020-11-11)](https://svn.tigreblanc.fr/presstify-plugins/parser/tags/2.0.29...v2.0.29)
+
+### Fixed
+
+- `Driver/XmlFileParser.php` : Modification du traitement XML 
+
+### Added
+
+- `Lib/Xml2Assoc.php` : Classe de traitement XML
+
+
 ## [v2.0.28 (2020-11-10)](https://svn.tigreblanc.fr/presstify-plugins/parser/tags/2.0.28...v2.0.28)
 
 ### Changed
